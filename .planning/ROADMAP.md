@@ -39,7 +39,11 @@
 2. User can open a word's detail card and see all stored information
 3. User can edit any field of a saved word and see the update reflected immediately
 4. User can delete a word and confirm it is removed from the list
-**Plans:** TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — Backend REST API (words routes + service + index.ts registration)
+- [ ] 02-02-PLAN.md — Add + List slice (wordsApi + hooks + WordList + AddWordDrawer + FAB + WordsPage)
+- [ ] 02-03-PLAN.md — View + Edit + Delete slice (WordDetailDrawer three-state + update/delete hooks)
 
 ### Phase 3: AI Auto-fill
 **Goal:** Entering a single Norwegian word triggers AI analysis that fills in Nynorsk inflections, gender, translation, example sentences, tags, and difficulty level automatically.
@@ -72,10 +76,11 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth + DB Foundation | 0/? | Not started | - |
-| 2. Core Word CRUD | 0/? | Not started | - |
+| 2. Core Word CRUD | 0/3 | Planned | - |
 | 3. AI Auto-fill | 0/? | Not started | - |
 | 4. Search | 0/? | Not started | - |
 
 ---
 
 *Roadmap created: 2026-05-27*
+*Last updated: 2026-05-27 — Phase 2 planned (3 plans)*
