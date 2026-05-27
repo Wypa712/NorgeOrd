@@ -16,9 +16,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ai-sdk/groq": "^3.0.39",
+    "@ai-sdk/groq": "^1.2.9",
     "@prisma/client": "^6.19.3",
-    "ai": "^6.0.191",
+    "ai": "^4.3.19",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
@@ -26,7 +26,7 @@
     "express-rate-limit": "^7.5.1",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
-    "zod": "^4.4.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
