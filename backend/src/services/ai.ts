@@ -32,7 +32,7 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 
 Return a JSON object with these fields:
 - translation: Ukrainian translation (short, 1-5 words)
-- definition: a concise Ukrainian dictionary-style definition, 1-2 sentences, explaining what the word/phrase means in context
+- definition: two short sentences separated by " — ": first a Nynorsk dictionary-style definition, then its Ukrainian translation. Example: "Eit hus er ein bygning der folk bur. — Будинок — споруда, де живуть люди."
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)
 - wordClass: one of "noun", "verb", "adjective", "adverb", "pronoun", "sentence", "other"
