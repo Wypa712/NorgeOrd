@@ -13,8 +13,7 @@ interface CreateWordInput {
   difficulty?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 }
 
-interface UpdateWordInput extends Partial<CreateWordInput> {
-  difficulty?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+interface UpdateWordInput extends Partial<Omit<CreateWordInput, 'tagNames'>> {
   personalNote?: string;
 }
 
