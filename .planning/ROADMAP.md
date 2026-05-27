@@ -27,7 +27,9 @@
 2. User can log in and remain authenticated across page reloads (JWT persisted)
 3. User can log out and all protected routes become inaccessible
 4. Authenticated user can only see and access their own words (row-level isolation verified)
-**Plans:** TBD
+**Plans:** 1 backend plan complete; frontend gap plans still needed
+Plans:
+- [x] 03-01-PLAN.md — Backend AI analysis endpoint + tag persistence
 
 ### Phase 2: Core Word CRUD
 **Goal:** Users can manually add, view, edit, and delete words — full word lifecycle works end-to-end without any AI dependency.
@@ -77,7 +79,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Auth + DB Foundation | 0/? | Not started | - |
 | 2. Core Word CRUD | 0/3 | Planned | - |
-| 3. AI Auto-fill | 0/? | Not started | - |
+| 3. AI Auto-fill | 1/? | Gaps found | - |
 | 4. Search | 0/? | Not started | - |
 
 ---
