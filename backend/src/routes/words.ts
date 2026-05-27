@@ -31,8 +31,9 @@ router.post('/', async (req, res, next) => {
     return res.status(400).json({ error: 'headword is required' });
   }
   try {
-    const word = await wordsService.createWord(req.user!.userId, req.body);
-    const pending = req.body.pendingChatMessages;
+    const { pendingChatMessages, ...wordInput } = req.body;
+    const word = await wordsService.createWord(req.user!.userId, wordInput);
+    const pending = pendingChatMessages;
     if (Array.isArray(pending) && pending.length > 0) {
       await prisma.chatMessage.createMany({
         data: pending
