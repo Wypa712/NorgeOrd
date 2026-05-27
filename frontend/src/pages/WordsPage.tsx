@@ -243,7 +243,6 @@ export default function WordsPage() {
 
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
-  const chatDialogRef = useRef<HTMLDialogElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const analysisWordContext = analysis && submittedHeadword
@@ -260,11 +259,6 @@ export default function WordsPage() {
     : null;
 
   const { messages: chatMessages, loading: chatLoading, send: sendChat, reset: resetChat } = useAnalysisChat(analysisWordContext);
-
-  useEffect(() => {
-    if (chatOpen) chatDialogRef.current?.showModal();
-    else chatDialogRef.current?.close();
-  }, [chatOpen]);
 
   useEffect(() => {
     if (chatOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -386,7 +380,7 @@ export default function WordsPage() {
         </main>
       )}
 
-      {analysis && activeTab === 'analyze' && (
+      {analysis && activeTab === 'analyze' && !chatOpen && (
         <button
           type="button"
           className="fixed bottom-6 right-6 z-40 btn btn-primary shadow-lg"
@@ -401,19 +395,21 @@ export default function WordsPage() {
         </button>
       )}
 
-      <dialog ref={chatDialogRef} className="modal modal-bottom sm:modal-middle" onClose={() => setChatOpen(false)}>
-        <div className="modal-box max-w-lg w-full mx-auto flex flex-col h-[75vh]">
-          <div className="flex items-center gap-2 mb-3 shrink-0">
-            <button type="button" className="btn btn-ghost btn-sm btn-circle" onClick={() => setChatOpen(false)}>
-              ←
+      {analysis && activeTab === 'analyze' && chatOpen && (
+        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-40 flex flex-col w-full sm:w-96 h-[480px] bg-base-100 border border-base-300 shadow-2xl rounded-t-2xl sm:rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between gap-2 px-4 py-3 bg-primary text-primary-content shrink-0">
+            <span className="font-semibold truncate">{submittedHeadword}</span>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs btn-circle text-primary-content hover:bg-primary-focus"
+              onClick={() => setChatOpen(false)}
+              aria-label="Закрити чат"
+            >
+              ✕
             </button>
-            <span className="font-semibold">{submittedHeadword}</span>
-            {chatMessages.length === 0 && (
-              <span className="text-xs text-base-content/40 ml-1">— задай питання про це слово</span>
-            )}
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+          <div className="flex-1 overflow-y-auto space-y-3 p-3">
             {chatMessages.length === 0 && !chatLoading && (
               <p className="text-center text-base-content/40 text-sm mt-8">
                 Граматика, вживання, приклади — питай!
@@ -437,7 +433,7 @@ export default function WordsPage() {
           </div>
 
           <form
-            className="flex gap-2 mt-3 shrink-0"
+            className="flex gap-2 p-3 border-t border-base-300 shrink-0"
             onSubmit={async e => {
               e.preventDefault();
               const val = chatInput;
@@ -462,10 +458,7 @@ export default function WordsPage() {
             </button>
           </form>
         </div>
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={() => setChatOpen(false)}>close</button>
-        </form>
-      </dialog>
+      )}
     </div>
   );
 }
