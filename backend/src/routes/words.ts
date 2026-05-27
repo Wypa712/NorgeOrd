@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { analyzeWord } from '../services/ai';
+import { analyzeWord, chatAboutWord } from '../services/ai';
 import * as wordsService from '../services/words';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
 
@@ -53,6 +54,63 @@ router.patch('/:id', async (req, res, next) => {
   try {
     const word = await wordsService.updateWord(req.user!.userId, req.params.id, req.body);
     res.json(word);
+  } catch (err: any) {
+    if (err.statusCode === 404) return res.status(404).json({ error: 'Word not found' });
+    if (err.statusCode === 403) return res.status(403).json({ error: 'Forbidden' });
+    next(err);
+  }
+});
+
+router.get('/:id/chat', async (req, res, next) => {
+  try {
+    await wordsService.getWordForUser(req.user!.userId, req.params.id);
+    const history = await prisma.chatMessage.findMany({
+      where: { wordId: req.params.id },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json(history);
+  } catch (err: any) {
+    if (err.statusCode === 404) return res.status(404).json({ error: 'Word not found' });
+    if (err.statusCode === 403) return res.status(403).json({ error: 'Forbidden' });
+    next(err);
+  }
+});
+
+router.post('/:id/chat', async (req, res, next) => {
+  try {
+    const word = await wordsService.getWordForUser(req.user!.userId, req.params.id);
+    const message: string = req.body?.message;
+    if (!message?.trim()) return res.status(400).json({ error: 'message is required' });
+
+    const history = await prisma.chatMessage.findMany({
+      where: { wordId: req.params.id },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    await prisma.chatMessage.create({
+      data: { wordId: req.params.id, role: 'user', content: message.trim() },
+    });
+
+    const messages = [
+      ...history.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      { role: 'user' as const, content: message.trim() },
+    ];
+
+    const result = chatAboutWord(word, messages);
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    let fullText = '';
+    for await (const chunk of result.textStream) {
+      fullText += chunk;
+      res.write(chunk);
+    }
+    res.end();
+
+    await prisma.chatMessage.create({
+      data: { wordId: req.params.id, role: 'assistant', content: fullText },
+    });
   } catch (err: any) {
     if (err.statusCode === 404) return res.status(404).json({ error: 'Word not found' });
     if (err.statusCode === 403) return res.status(403).json({ error: 'Forbidden' });

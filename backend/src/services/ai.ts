@@ -1,4 +1,4 @@
-import { streamObject } from 'ai';
+import { streamObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
 
@@ -46,6 +46,50 @@ Return a JSON object with these fields:
 - examples: array of 2-3 short strings, each containing a Nynorsk example sentence and its Ukrainian translation, formatted like "Eg bur i Noreg. — Я живу в Норвегії."
 - tags: array of 2-4 English topic tags (e.g. "house", "nature", "body", "daily life")
 `.trim();
+}
+
+interface WordContext {
+  headword: string;
+  translation: string | null;
+  wordClass: string | null;
+  gender: string | null;
+  difficulty: string | null;
+  forms: unknown;
+  examples: string[];
+  notes: string | null;
+}
+
+function buildChatSystemPrompt(word: WordContext): string {
+  const formsList = word.forms && typeof word.forms === 'object'
+    ? Object.entries(word.forms as Record<string, string>).map(([k, v]) => `${k}: ${v}`).join(', ')
+    : '';
+  return `
+You are a Nynorsk Norwegian language tutor helping a Ukrainian learner study the word/phrase: "${word.headword}".
+
+Word context:
+- Translation: ${word.translation ?? '—'}
+- Word class: ${word.wordClass ?? '—'}
+- Gender: ${word.gender ?? '—'}
+- CEFR level: ${word.difficulty ?? '—'}
+${formsList ? `- Forms: ${formsList}` : ''}
+${word.examples.length ? `- Examples: ${word.examples.join(' | ')}` : ''}
+${word.notes ? `- Notes: ${word.notes}` : ''}
+
+Your role: explain usage, give additional Nynorsk examples with Ukrainian translations, clarify grammar, answer questions about this word.
+Always use Ukrainian for explanations. Use Nynorsk (never Bokmål) for any Norwegian text.
+Keep answers concise and practical.
+`.trim();
+}
+
+export function chatAboutWord(
+  word: WordContext,
+  messages: { role: 'user' | 'assistant'; content: string }[],
+) {
+  return streamText({
+    model: groq('llama-3.3-70b-versatile'),
+    system: buildChatSystemPrompt(word),
+    messages,
+  });
 }
 
 export function analyzeWord(headword: string) {

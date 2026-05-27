@@ -2,13 +2,14 @@ import { useRef, useEffect, useState } from 'react';
 import type { Word } from '../api/wordsApi';
 import { useUpdateWord } from '../hooks/useUpdateWord';
 import { useDeleteWord } from '../hooks/useDeleteWord';
+import { useWordChat } from '../hooks/useWordChat';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
 import { SelectField } from './SelectField';
 import { WordClassBadge } from './WordClassBadge';
 import { GenderBadge } from './GenderBadge';
 
-type DrawerMode = 'view' | 'edit';
+type DrawerMode = 'view' | 'edit' | 'chat';
 
 interface Props {
   wordId: string | null;
@@ -19,14 +20,17 @@ interface Props {
 
 export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<DrawerMode>('view');
+  const [chatInput, setChatInput] = useState('');
   const updateMutation = useUpdateWord();
   const deleteMutation = useDeleteWord();
+  const { messages: chatMessages, loading: chatLoading, send: sendChat, reset: resetChat } = useWordChat(wordId);
 
   const [editHeadword, setEditHeadword] = useState('');
   const [editTranslation, setEditTranslation] = useState('');
   const [editGender, setEditGender] = useState<'masculine' | 'feminine' | 'neuter' | ''>('');
-  const [editWordClass, setEditWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'other' | ''>('');
+  const [editWordClass, setEditWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other' | ''>('');
   const [editNotes, setEditNotes] = useState('');
 
   const word = words.find(w => w.id === wordId) ?? null;
@@ -38,7 +42,12 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
 
   useEffect(() => {
     if (open) setMode('view');
+    if (!open) { resetChat(); setChatInput(''); }
   }, [open, wordId]);
+
+  useEffect(() => {
+    if (mode === 'chat') messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, mode]);
 
   useEffect(() => {
     if (word) {
@@ -144,6 +153,9 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
               <p className="mt-4 text-sm text-base-content/60 italic">{word.notes}</p>
             )}
             <div className="modal-action gap-2 mt-6">
+              <Button variant="ghost" type="button" onClick={() => setMode('chat')}>
+                Чат
+              </Button>
               <Button variant="ghost" type="button" onClick={() => setMode('edit')}>
                 Редагувати
               </Button>
@@ -187,6 +199,8 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 <option value="verb">verb</option>
                 <option value="adjective">adjektiv</option>
                 <option value="adverb">adverb</option>
+                <option value="pronoun">pronomen</option>
+                <option value="sentence">setning</option>
                 <option value="other">anna</option>
               </SelectField>
               <SelectField
@@ -222,6 +236,68 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
               </div>
             </form>
           </>
+        )}
+        {word && mode === 'chat' && (
+          <div className="flex flex-col h-[70vh]">
+            <div className="flex items-center gap-2 mb-3">
+              <button type="button" className="btn btn-ghost btn-sm btn-circle" onClick={() => setMode('view')}>
+                ←
+              </button>
+              <span className="font-semibold">{word.headword}</span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {chatMessages.length === 0 && !chatLoading && (
+                <p className="text-center text-base-content/40 text-sm mt-8">
+                  Задай питання про це слово — граматика, вживання, приклади…
+                </p>
+              )}
+              {chatMessages.map(msg => (
+                <div
+                  key={msg.id}
+                  className={`chat ${msg.role === 'user' ? 'chat-end' : 'chat-start'}`}
+                >
+                  <div className={`chat-bubble text-sm ${msg.role === 'user' ? 'chat-bubble-primary' : ''}`}>
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="chat chat-start">
+                  <div className="chat-bubble chat-bubble-ghost text-sm">
+                    <span className="loading loading-dots loading-xs" />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <form
+              className="flex gap-2 mt-3"
+              onSubmit={async e => {
+                e.preventDefault();
+                const val = chatInput;
+                setChatInput('');
+                await sendChat(val);
+              }}
+            >
+              <input
+                className="input input-bordered input-sm flex-1"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                placeholder="Напиши питання..."
+                disabled={chatLoading}
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="btn btn-primary btn-sm"
+                disabled={chatLoading || !chatInput.trim()}
+              >
+                →
+              </button>
+            </form>
+          </div>
         )}
       </div>
       <form method="dialog" className="modal-backdrop">
