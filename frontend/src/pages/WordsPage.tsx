@@ -314,24 +314,36 @@ export default function WordsPage() {
 
       {activeTab === 'analyze' && (
         <main className="pt-6">
-          <form onSubmit={analyze} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <Input
-              id="ai-headword"
-              label="Введи слово Nynorsk"
-              value={headword}
-              onChange={event => setHeadword(event.target.value)}
-              error={headwordError}
-              placeholder="hus"
-              autoComplete="off"
-            />
-            <Button
-              type="submit"
-              loading={analyzeMutation.isPending}
-              disabled={analyzeMutation.isPending}
-              className="sm:mb-0"
-            >
-              {analyzeMutation.isPending ? 'Шукаю...' : 'Розібрати'}
-            </Button>
+          <form onSubmit={analyze} className="flex flex-col gap-1">
+            <label htmlFor="ai-headword" className="label pb-1">
+              <span className="label-text font-semibold">Введи слово Nynorsk</span>
+            </label>
+            <div className="flex gap-3 items-center">
+              <input
+                id="ai-headword"
+                className={`input input-bordered w-full flex-1 ${headwordError ? 'input-error' : ''}`}
+                value={headword}
+                onChange={event => setHeadword(event.target.value)}
+                placeholder="hus"
+                autoComplete="off"
+                aria-invalid={!!headwordError}
+                aria-describedby={headwordError ? 'ai-headword-error' : undefined}
+              />
+              <Button
+                type="submit"
+                loading={analyzeMutation.isPending}
+                disabled={analyzeMutation.isPending}
+              >
+                {analyzeMutation.isPending ? 'Шукаю...' : 'Розібрати'}
+              </Button>
+            </div>
+            <div className="min-h-[1.25rem] pt-0.5">
+              {headwordError && (
+                <span id="ai-headword-error" className="text-xs text-error" role="alert">
+                  {headwordError}
+                </span>
+              )}
+            </div>
           </form>
 
           {!analysis && !analyzeMutation.isPending && (
