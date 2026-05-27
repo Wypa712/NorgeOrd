@@ -51,6 +51,7 @@ export interface CreateWordInput {
   examples?: string[];
   tagNames?: string[];
   difficulty?: Difficulty;
+  pendingChatMessages?: { role: 'user' | 'assistant'; content: string }[];
 }
 
 export interface UpdateWordInput extends Partial<CreateWordInput> {

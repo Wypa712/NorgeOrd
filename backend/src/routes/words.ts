@@ -32,9 +32,38 @@ router.post('/', async (req, res, next) => {
   }
   try {
     const word = await wordsService.createWord(req.user!.userId, req.body);
+    const pending = req.body.pendingChatMessages;
+    if (Array.isArray(pending) && pending.length > 0) {
+      await prisma.chatMessage.createMany({
+        data: pending
+          .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+          .map((m: any) => ({ wordId: word.id, role: m.role, content: String(m.content) })),
+      });
+    }
     res.status(201).json(word);
   } catch (err: any) {
     if (err.statusCode === 409) return res.status(409).json({ error: 'Headword already exists for this user' });
+    next(err);
+  }
+});
+
+router.post('/preview-chat', async (req, res, next) => {
+  try {
+    const { wordContext, messages, message } = req.body;
+    if (!message?.trim()) return res.status(400).json({ error: 'message is required' });
+    if (!wordContext?.headword) return res.status(400).json({ error: 'wordContext is required' });
+    const history: { role: 'user' | 'assistant'; content: string }[] = Array.isArray(messages)
+      ? messages.filter((m: any) => m.role === 'user' || m.role === 'assistant')
+      : [];
+    const allMessages = [...history, { role: 'user' as const, content: message.trim() }];
+    const result = chatAboutWord(wordContext, allMessages);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    for await (const chunk of result.textStream) {
+      res.write(chunk);
+    }
+    res.end();
+  } catch (err) {
     next(err);
   }
 });

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAnalyzeWord } from '../features/words/hooks/useAnalyzeWord';
 import { useCreateWord } from '../features/words/hooks/useCreateWord';
 import { useWords } from '../features/words/hooks/useWords';
+import { useAnalysisChat } from '../features/words/hooks/useAnalysisChat';
 import { WordList } from '../features/words/components/WordList';
 import { WordDetailDrawer } from '../features/words/components/WordDetailDrawer';
 import { Button } from '../components/Button';
@@ -15,6 +16,7 @@ import type {
   WordClass,
   WordForms,
 } from '../features/words/api/wordsApi';
+import type { ChatMessage } from '../features/words/api/chatApi';
 
 type ActiveTab = 'analyze' | 'dictionary';
 
@@ -24,10 +26,12 @@ function AnalysisReviewCard({
   headword,
   analysis,
   onSaved,
+  pendingChatMessages,
 }: {
   headword: string;
   analysis: WordAnalysis;
   onSaved: () => void;
+  pendingChatMessages: ChatMessage[];
 }) {
   const createMutation = useCreateWord();
   const [translation, setTranslation] = useState(analysis.translation ?? '');
@@ -70,6 +74,9 @@ function AnalysisReviewCard({
       examples: cleanExamples.length ? cleanExamples : undefined,
       tagNames: cleanTags.length ? cleanTags : undefined,
       notes: definition || undefined,
+      pendingChatMessages: pendingChatMessages.length
+        ? pendingChatMessages.map(m => ({ role: m.role, content: m.content }))
+        : undefined,
     };
     createMutation.mutate(payload, { onSuccess: onSaved });
   };
@@ -234,6 +241,35 @@ export default function WordsPage() {
   const { data: words, isPending, isError } = useWords(debouncedQuery);
   const analyzeMutation = useAnalyzeWord();
 
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const chatDialogRef = useRef<HTMLDialogElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const analysisWordContext = analysis && submittedHeadword
+    ? {
+        headword: submittedHeadword,
+        translation: analysis.translation ?? null,
+        wordClass: analysis.wordClass ?? null,
+        gender: analysis.gender ?? null,
+        difficulty: analysis.difficulty ?? null,
+        forms: (analysis.forms ?? {}) as Record<string, string>,
+        examples: analysis.examples ?? [],
+        notes: analysis.definition ?? null,
+      }
+    : null;
+
+  const { messages: chatMessages, loading: chatLoading, send: sendChat, reset: resetChat } = useAnalysisChat(analysisWordContext);
+
+  useEffect(() => {
+    if (chatOpen) chatDialogRef.current?.showModal();
+    else chatDialogRef.current?.close();
+  }, [chatOpen]);
+
+  useEffect(() => {
+    if (chatOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, chatOpen]);
+
   const analyze = async (event: React.FormEvent) => {
     event.preventDefault();
     const cleanHeadword = headword.trim();
@@ -247,6 +283,7 @@ export default function WordsPage() {
       setSubmittedHeadword(cleanHeadword);
       setAnalysis(result);
       setAnalysisKey(current => current + 1);
+      resetChat();
     } catch {
       // useAnalyzeWord shows the retryable toast.
     }
@@ -256,6 +293,8 @@ export default function WordsPage() {
     setAnalysis(null);
     setHeadword('');
     setAnalysisKey(current => current + 1);
+    resetChat();
+    setChatOpen(false);
   };
 
   return (
@@ -313,6 +352,7 @@ export default function WordsPage() {
               headword={submittedHeadword}
               analysis={analysis}
               onSaved={handleSaved}
+              pendingChatMessages={chatMessages}
             />
           )}
         </main>
@@ -345,6 +385,87 @@ export default function WordsPage() {
           />
         </main>
       )}
+
+      {analysis && activeTab === 'analyze' && (
+        <button
+          type="button"
+          className="fixed bottom-6 right-6 z-40 btn btn-primary shadow-lg"
+          onClick={() => setChatOpen(true)}
+        >
+          {chatMessages.length > 0 && (
+            <span className="badge badge-sm badge-secondary absolute -top-2 -right-2">
+              {chatMessages.length}
+            </span>
+          )}
+          Є питання?
+        </button>
+      )}
+
+      <dialog ref={chatDialogRef} className="modal modal-bottom sm:modal-middle" onClose={() => setChatOpen(false)}>
+        <div className="modal-box max-w-lg w-full mx-auto flex flex-col h-[75vh]">
+          <div className="flex items-center gap-2 mb-3 shrink-0">
+            <button type="button" className="btn btn-ghost btn-sm btn-circle" onClick={() => setChatOpen(false)}>
+              ←
+            </button>
+            <span className="font-semibold">{submittedHeadword}</span>
+            {chatMessages.length === 0 && (
+              <span className="text-xs text-base-content/40 ml-1">— задай питання про це слово</span>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+            {chatMessages.length === 0 && !chatLoading && (
+              <p className="text-center text-base-content/40 text-sm mt-8">
+                Граматика, вживання, приклади — питай!
+              </p>
+            )}
+            {chatMessages.map(msg => (
+              <div key={msg.id} className={`chat ${msg.role === 'user' ? 'chat-end' : 'chat-start'}`}>
+                <div className={`chat-bubble text-sm ${msg.role === 'user' ? 'chat-bubble-primary' : ''}`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="chat chat-start">
+                <div className="chat-bubble chat-bubble-ghost text-sm">
+                  <span className="loading loading-dots loading-xs" />
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <form
+            className="flex gap-2 mt-3 shrink-0"
+            onSubmit={async e => {
+              e.preventDefault();
+              const val = chatInput;
+              setChatInput('');
+              await sendChat(val);
+            }}
+          >
+            <input
+              className="input input-bordered input-sm flex-1"
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              placeholder="Напиши питання..."
+              disabled={chatLoading}
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={chatLoading || !chatInput.trim()}
+            >
+              →
+            </button>
+          </form>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => setChatOpen(false)}>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }
