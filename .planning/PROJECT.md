@@ -30,7 +30,7 @@
 
 - Flashcard/SRS система — можливо в майбутньому, не в v1
 - Багатокористувацькі функції (шеринг словників) — можливо пізніше
-- Мобільний додаток — веб-версія достатня
+- Нативний мобільний додаток — веб-версія з mobile-first дизайном достатня
 
 ## Context
 
@@ -44,6 +44,7 @@
 - **Tech Stack**: React + Vite + Tailwind + DaisyUI + Zustand (Frontend); Node.js + Express + PostgreSQL + Prisma + JWT (Backend)
 - **AI**: OpenAI API для автоматичного аналізу слів та AI-асистента
 - **Мова**: Nynorsk як основний контекст для всіх AI-підказок та форм
+- **UI**: Mobile-first — всі інтерфейси проектуються для мобільного екрану (DaisyUI допомагає)
 
 ## Key Decisions
 
