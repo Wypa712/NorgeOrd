@@ -25,13 +25,19 @@ export async function listWords(userId: string, query?: string) {
       WHERE "userId" = ${userId}
       AND to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, ''))
           @@ plainto_tsquery('pg_catalog.norwegian', ${trimmed})
+      ORDER BY ts_rank(
+        to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, '')),
+        plainto_tsquery('pg_catalog.norwegian', ${trimmed})
+      ) DESC
     `;
+    if (rows.length === 0) return [];
     const ids = rows.map(r => r.id);
-    return prisma.word.findMany({
+    const words = await prisma.word.findMany({
       where: { id: { in: ids }, userId },
       include: { tags: { include: { tag: true } } },
-      orderBy: { createdAt: 'desc' },
     });
+    const order = new Map(ids.map((id, i) => [id, i]));
+    return words.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
   }
   return prisma.word.findMany({
     where: { userId },
