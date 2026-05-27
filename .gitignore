@@ -1,0 +1,8 @@
+# Environment files — NEVER commit
+backend/.env
+frontend/.env
+node_modules/
+dist/
+build/
+.DS_Store
+*.log
