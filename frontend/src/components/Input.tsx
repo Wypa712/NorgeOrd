@@ -19,17 +19,16 @@ export function Input({ label, error, id, className = '', ...props }: InputProps
         aria-invalid={!!error}
         {...props}
       />
-      {error && (
-        <div className="label">
-          <span
-            id={`${id}-error`}
-            className="label-text-alt text-error"
-            role="alert"
-          >
-            {error}
-          </span>
-        </div>
-      )}
+      <div className="label py-0.5 min-h-[1.25rem]">
+        <span
+          id={`${id}-error`}
+          className={`label-text-alt text-error transition-opacity ${error ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          role="alert"
+          aria-hidden={!error}
+        >
+          {error ?? ' '}
+        </span>
+      </div>
     </div>
   );
 }
