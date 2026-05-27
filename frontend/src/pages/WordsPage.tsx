@@ -1,10 +1,28 @@
+import { useState } from 'react';
+import AppShell from '../components/AppShell';
+import { useWords } from '../features/words/hooks/useWords';
+import { WordList } from '../features/words/components/WordList';
+import { FAB } from '../features/words/components/FAB';
+import { AddWordDrawer } from '../features/words/components/AddWordDrawer';
+
 export default function WordsPage() {
+  const [addDrawerOpen, setAddDrawerOpen] = useState(false);
+  const [_selectedWordId, setSelectedWordId] = useState<string | null>(null);
+  const { data: words, isPending, isError } = useWords();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] ">
-      <p className="text-base-content/50 text-center">
-        Слів ще немає.<br />
-        Функція додавання слів з'явиться у наступній фазі.
-      </p>
-    </div>
+    <AppShell>
+      <WordList
+        words={words ?? []}
+        isPending={isPending}
+        isError={isError}
+        onWordClick={setSelectedWordId}
+      />
+      <FAB onClick={() => setAddDrawerOpen(true)} />
+      <AddWordDrawer
+        open={addDrawerOpen}
+        onClose={() => setAddDrawerOpen(false)}
+      />
+    </AppShell>
   );
 }
