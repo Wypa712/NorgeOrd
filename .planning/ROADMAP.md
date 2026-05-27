@@ -11,7 +11,7 @@
 - [x] **Phase 1: Auth + DB Foundation** - Secure user accounts and production-ready database schema
 - [x] **Phase 2: Core Word CRUD** - Complete word lifecycle without AI dependency
 - [x] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
-- [ ] **Phase 4: Search** - Dictionary is navigable by word or translation
+- [x] **Phase 4: Search** - Dictionary is navigable by word or translation
 
 ---
 
@@ -70,7 +70,9 @@ Plans:
 1. User can type part of a Norwegian word or its translation into a search field and see matching results in real time
 2. Search uses Norwegian-aware stemming (`pg_catalog.norwegian`) so inflected forms match the headword
 3. Empty search returns the full word list; no matches returns a clear empty state
-**Plans:** TBD
+**Plans:** 1 plan
+Plans:
+- [x] 04-01-PLAN.md — Search: useDebounce + FTS backend + frontend wiring (all 7 files)
 **UI hint**: yes
 
 ---
@@ -82,9 +84,9 @@ Plans:
 | 1. Auth + DB Foundation | ?/? | Complete | 2026-05-27 |
 | 2. Core Word CRUD | 3/3 | Complete | 2026-05-27 |
 | 3. AI Auto-fill | 3/3 | Complete | 2026-05-27 |
-| 4. Search | 0/? | Not started | - |
+| 4. Search | 1/1 | Complete | 2026-05-28 |
 
 ---
 
 *Roadmap created: 2026-05-27*
-*Last updated: 2026-05-27 — Phase 3 complete; ready for Phase 4 planning*
+*Last updated: 2026-05-28 — Phase 4 complete; v1 MVP done (10/10 requirements)*

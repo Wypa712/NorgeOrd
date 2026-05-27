@@ -12,10 +12,10 @@
 ## Current Position
 
 **Phase:** 4 — Search
-**Status:** Phase 3 complete; ready to plan Phase 4
+**Status:** Complete ✓ — v1 MVP done
 
 ```
-Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 ✓ → Phase 4
+Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 ✓ → Phase 4 ✓
 ```
 
 ---
@@ -25,10 +25,10 @@ Progress: [████████████████████] Phase 1
 | Metric | Value |
 |--------|-------|
 | Phases total | 4 |
-| Phases complete | 3 |
-| Plans complete | 9 |
+| Phases complete | 4 |
+| Plans complete | 10 |
 | Requirements mapped | 10/10 |
-| Requirements complete | 9/10 (AUTH-01..04 + WORD-01..05) |
+| Requirements complete | 10/10 |
 
 ---
 
@@ -54,7 +54,7 @@ Progress: [████████████████████] Phase 1
 - All Prisma models and enums from `@prisma/client`
 
 ### Active Risks
-- Phase 4 search still needs implementation and end-to-end verification.
+None — all 4 phases complete.
 
 ### Blockers
 None.
@@ -80,6 +80,6 @@ None.
 
 ## Session Continuity
 
-**Last updated:** 2026-05-27
-**Last action:** Phase 3 gap closure completed with frontend AI-fill, persisted metadata display, Groq provider docs, and live canary verification.
-**Next action:** `/gsd-plan-phase 4` — plan Search
+**Last updated:** 2026-05-28
+**Last action:** Phase 4 complete — FTS + ILIKE search, debounce, definition/synonyms in analysis card.
+**Next action:** v1 MVP shipped. Подальший розвиток за потребою.
