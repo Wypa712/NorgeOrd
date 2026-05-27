@@ -1,7 +1,7 @@
 import api from '../../../lib/api';
 
 export type Gender = 'masculine' | 'feminine' | 'neuter';
-export type WordClass = 'noun' | 'verb' | 'adjective' | 'adverb' | 'other';
+export type WordClass = 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other';
 export type Difficulty = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 export type WordForms = Record<string, string>;
 
@@ -55,8 +55,10 @@ export interface UpdateWordInput extends Partial<CreateWordInput> {
   personalNote?: string;
 }
 
-export async function listWords(): Promise<Word[]> {
-  const { data } = await api.get('/words');
+export async function listWords(query?: string): Promise<Word[]> {
+  const { data } = await api.get('/words', {
+    params: query?.trim() ? { q: query.trim() } : undefined,
+  });
   return data;
 }
 
