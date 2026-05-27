@@ -8,9 +8,9 @@
 
 ## Phases
 
-- [ ] **Phase 1: Auth + DB Foundation** - Secure user accounts and production-ready database schema
-- [ ] **Phase 2: Core Word CRUD** - Complete word lifecycle without AI dependency
-- [ ] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
+- [x] **Phase 1: Auth + DB Foundation** - Secure user accounts and production-ready database schema
+- [x] **Phase 2: Core Word CRUD** - Complete word lifecycle without AI dependency
+- [x] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
 - [ ] **Phase 4: Search** - Dictionary is navigable by word or translation
 
 ---
@@ -27,11 +27,7 @@
 2. User can log in and remain authenticated across page reloads (JWT persisted)
 3. User can log out and all protected routes become inaccessible
 4. Authenticated user can only see and access their own words (row-level isolation verified)
-**Plans:** 3 plans
-Plans:
-- [x] 03-01-PLAN.md — Backend AI analysis endpoint + tag persistence
-- [ ] 03-02-PLAN.md — Gap closure: AddWordDrawer AI-fill flow + editable generated fields
-- [ ] 03-03-PLAN.md — Gap closure: Persisted AI metadata display + live canary verification
+**Plans:** Completed in prior session
 
 ### Phase 2: Core Word CRUD
 **Goal:** Users can manually add, view, edit, and delete words — full word lifecycle works end-to-end without any AI dependency.
@@ -45,9 +41,9 @@ Plans:
 4. User can delete a word and confirm it is removed from the list
 **Plans:** 3 plans
 Plans:
-- [ ] 02-01-PLAN.md — Backend REST API (words routes + service + index.ts registration)
-- [ ] 02-02-PLAN.md — Add + List slice (wordsApi + hooks + WordList + AddWordDrawer + FAB + WordsPage)
-- [ ] 02-03-PLAN.md — View + Edit + Delete slice (WordDetailDrawer three-state + update/delete hooks)
+- [x] 02-01-PLAN.md — Backend REST API (words routes + service + index.ts registration)
+- [x] 02-02-PLAN.md — Add + List slice (wordsApi + hooks + WordList + AddWordDrawer + FAB + WordsPage)
+- [x] 02-03-PLAN.md — View + Edit + Delete slice (WordDetailDrawer three-state + update/delete hooks)
 
 ### Phase 3: AI Auto-fill
 **Goal:** Entering a single Norwegian word triggers AI analysis that fills in Nynorsk inflections, gender, translation, example sentences, tags, and difficulty level automatically.
@@ -58,7 +54,11 @@ Plans:
 1. User types one Nynorsk headword, submits, and receives a fully populated word card (inflections, gender, translation, examples, tags, difficulty) without entering any other field
 2. AI returns Nynorsk forms specifically — canary words `husa`, `ikkje`, `eg` appear correctly (not Bokmål equivalents)
 3. Failed or slow AI calls surface a clear error; user can retry or save with partial data
-**Plans:** TBD
+**Plans:** 3 plans
+Plans:
+- [x] 03-01-PLAN.md — Backend AI analysis endpoint + tag persistence
+- [x] 03-02-PLAN.md — Gap closure: AddWordDrawer AI-fill flow + editable generated fields
+- [x] 03-03-PLAN.md — Gap closure: Persisted AI metadata display + live canary verification
 **UI hint**: yes
 
 ### Phase 4: Search
@@ -79,12 +79,12 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth + DB Foundation | 0/? | Not started | - |
-| 2. Core Word CRUD | 0/3 | Planned | - |
-| 3. AI Auto-fill | 1/3 | Gap plans ready | - |
+| 1. Auth + DB Foundation | ?/? | Complete | 2026-05-27 |
+| 2. Core Word CRUD | 3/3 | Complete | 2026-05-27 |
+| 3. AI Auto-fill | 3/3 | Complete | 2026-05-27 |
 | 4. Search | 0/? | Not started | - |
 
 ---
 
 *Roadmap created: 2026-05-27*
-*Last updated: 2026-05-27 — Phase 2 planned (3 plans)*
+*Last updated: 2026-05-27 — Phase 3 complete; ready for Phase 4 planning*

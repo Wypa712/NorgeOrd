@@ -11,11 +11,11 @@
 
 ## Current Position
 
-**Phase:** 3 — AI Auto-fill
-**Status:** Phase 3 gap plans ready
+**Phase:** 4 — Search
+**Status:** Phase 3 complete; ready to plan Phase 4
 
 ```
-Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 → Phase 4
+Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 ✓ → Phase 4
 ```
 
 ---
@@ -25,10 +25,10 @@ Progress: [████████████████████] Phase 1
 | Metric | Value |
 |--------|-------|
 | Phases total | 4 |
-| Phases complete | 2 |
-| Plans complete | 7 |
+| Phases complete | 3 |
+| Plans complete | 9 |
 | Requirements mapped | 10/10 |
-| Requirements complete | 8/10 (AUTH-01..04 + WORD-02..05) |
+| Requirements complete | 9/10 (AUTH-01..04 + WORD-01..05) |
 
 ---
 
@@ -36,7 +36,7 @@ Progress: [████████████████████] Phase 1
 
 ### Key Decisions Logged
 - Stack: React + Vite + Tailwind + DaisyUI 4 + Zustand (frontend); Node.js + Express 5 + PostgreSQL (Neon) + Prisma 6 + JWT (backend)
-- AI: OpenAI API — `gpt-4o-mini` for auto-fill
+- AI: Groq via Vercel AI SDK — `llama-3.3-70b-versatile` for Phase 3 auto-fill
 - Nynorsk only — no Bokmål mixing; `feminine` gender enum value is mandatory (3-value enum)
 - GIN index for FTS using `pg_catalog.norwegian` — applied in migration `20260527115317_add_fts_gin_index`
 - Feature folder structure: `src/features/{auth,words,search}/` from day one
@@ -54,8 +54,7 @@ Progress: [████████████████████] Phase 1
 - All Prisma models and enums from `@prisma/client`
 
 ### Active Risks
-- AI returning Bokmål instead of Nynorsk (CRITICAL — Phase 3 canary test required)
-- OpenAI costs without `max_tokens` guard (HIGH — Phase 3)
+- Phase 4 search still needs implementation and end-to-end verification.
 
 ### Blockers
 None.
@@ -74,11 +73,13 @@ None.
 - [x] Plan Phase 2 (`/gsd-plan-phase 2`)
 - [x] Execute Phase 2 (`/gsd-execute-phase 2`)
 - [x] UAT checkpoint Phase 2 ✓
+- [x] Execute Phase 3 gap plans (`/gsd-execute-phase 3 --gaps-only`)
+- [x] Live Groq Nynorsk canary verification (`hus` → `husa`, `ikkje`, `eg`)
 
 ---
 
 ## Session Continuity
 
 **Last updated:** 2026-05-27
-**Last action:** Phase 3 gap plans created for frontend AI-fill flow, persisted metadata display, docs update, and live canary verification.
-**Next action:** `/gsd-execute-phase 3 --gaps-only` — execute Phase 3 gap closure plans
+**Last action:** Phase 3 gap closure completed with frontend AI-fill, persisted metadata display, Groq provider docs, and live canary verification.
+**Next action:** `/gsd-plan-phase 4` — plan Search
