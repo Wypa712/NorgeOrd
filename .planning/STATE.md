@@ -12,11 +12,10 @@
 ## Current Position
 
 **Phase:** 2 — Core Word CRUD
-**Plan:** Ready to execute — 3 plans in 3 waves
-**Status:** Phase 2 planned ✓
+**Status:** Phase 2 complete ✓
 
 ```
-Progress: [██████████] Phase 1 ✓ → Phase 2 [planned] → Phase 3 → Phase 4
+Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 → Phase 4
 ```
 
 ---
@@ -26,10 +25,10 @@ Progress: [██████████] Phase 1 ✓ → Phase 2 [planned] →
 | Metric | Value |
 |--------|-------|
 | Phases total | 4 |
-| Phases complete | 1 |
-| Plans complete | 4 |
+| Phases complete | 2 |
+| Plans complete | 7 |
 | Requirements mapped | 10/10 |
-| Requirements complete | 4/10 (AUTH-01..04) |
+| Requirements complete | 8/10 (AUTH-01..04 + WORD-02..05) |
 
 ---
 
@@ -61,16 +60,25 @@ Progress: [██████████] Phase 1 ✓ → Phase 2 [planned] →
 ### Blockers
 None.
 
+### Phase 2 Handoff — Available for Phase 3
+- `listWords`, `createWord`, `getWordForUser`, `updateWord`, `deleteWord` — `backend/src/services/words.ts`
+- `wordsRouter` — `backend/src/routes/words.ts` (mounted at /api/words behind requireAuth)
+- `Word`, `CreateWordInput`, `UpdateWordInput` — `frontend/src/features/words/api/wordsApi.ts`
+- `useWords`, `useWord`, `useCreateWord`, `useUpdateWord`, `useDeleteWord` — `frontend/src/features/words/hooks/`
+- `WordList`, `WordListRow`, `WordDetailDrawer`, `AddWordDrawer`, `FAB`, `SelectField`, `WordClassBadge`, `GenderBadge` — `frontend/src/features/words/components/`
+- `WordsPage` — `frontend/src/pages/WordsPage.tsx`
+
 ### TODOs
 - [x] Create Phase 1 plan (`/gsd-plan-phase 1`)
 - [x] Execute Phase 1 (`/gsd-execute-phase 1`)
 - [x] Plan Phase 2 (`/gsd-plan-phase 2`)
-- [ ] Execute Phase 2 (`/gsd-execute-phase 2`)
+- [x] Execute Phase 2 (`/gsd-execute-phase 2`)
+- [x] UAT checkpoint Phase 2 ✓
 
 ---
 
 ## Session Continuity
 
 **Last updated:** 2026-05-27
-**Last action:** Phase 2 planned — 3 PLAN.md files (02-01, 02-02, 02-03), verified 12/12 dimensions
-**Next action:** Execute Phase 2 — `/gsd-execute-phase 2`
+**Last action:** Phase 3 context gathered — AI auto-fill (Groq `llama-3.3-70b-versatile`, streaming, два кроки)
+**Next action:** `/gsd-plan-phase 3` — створити план виконання Phase 3
