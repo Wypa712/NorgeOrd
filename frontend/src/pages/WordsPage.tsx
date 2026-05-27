@@ -4,10 +4,11 @@ import { useWords } from '../features/words/hooks/useWords';
 import { WordList } from '../features/words/components/WordList';
 import { FAB } from '../features/words/components/FAB';
 import { AddWordDrawer } from '../features/words/components/AddWordDrawer';
+import { WordDetailDrawer } from '../features/words/components/WordDetailDrawer';
 
 export default function WordsPage() {
   const [addDrawerOpen, setAddDrawerOpen] = useState(false);
-  const [_selectedWordId, setSelectedWordId] = useState<string | null>(null);
+  const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
   const { data: words, isPending, isError } = useWords();
 
   return (
@@ -22,6 +23,12 @@ export default function WordsPage() {
       <AddWordDrawer
         open={addDrawerOpen}
         onClose={() => setAddDrawerOpen(false)}
+      />
+      <WordDetailDrawer
+        wordId={selectedWordId}
+        words={words ?? []}
+        open={selectedWordId !== null}
+        onClose={() => setSelectedWordId(null)}
       />
     </AppShell>
   );
