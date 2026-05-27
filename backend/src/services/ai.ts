@@ -32,7 +32,7 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 
 Return a JSON object with these fields:
 - translation: Ukrainian translation (short, 1-5 words)
-- definition: a concise Norwegian (Nynorsk) dictionary-style definition, 1-2 sentences, explaining what the word/phrase means in context
+- definition: a concise Ukrainian dictionary-style definition, 1-2 sentences, explaining what the word/phrase means in context
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)
 - wordClass: one of "noun", "verb", "adjective", "adverb", "pronoun", "sentence", "other"
