@@ -37,6 +37,8 @@ function AnalysisReviewCard({
   const [forms, setForms] = useState<WordForms>(analysis.forms ?? {});
   const [examples, setExamples] = useState<string[]>(analysis.examples ?? []);
   const [tags, setTags] = useState<string[]>(analysis.tags ?? []);
+  const definition = analysis.definition;
+  const synonyms = analysis.synonyms ?? [];
 
   const setFormValue = (key: string, value: string) => {
     setForms(current => ({ ...current, [key]: value }));
@@ -67,6 +69,7 @@ function AnalysisReviewCard({
       forms: showsForms && Object.keys(cleanForms).length ? cleanForms : undefined,
       examples: cleanExamples.length ? cleanExamples : undefined,
       tagNames: cleanTags.length ? cleanTags : undefined,
+      notes: definition || undefined,
     };
     createMutation.mutate(payload, { onSuccess: onSaved });
   };
@@ -84,6 +87,22 @@ function AnalysisReviewCard({
           {createMutation.isPending ? 'Зберігаю...' : 'Зберегти в словник'}
         </Button>
       </div>
+
+      {(definition || synonyms.length > 0) && (
+        <div className="mt-4 rounded-md bg-base-200 p-3 space-y-2">
+          {definition && (
+            <p className="text-sm text-base-content/80 italic">{definition}</p>
+          )}
+          {synonyms.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <span className="text-xs text-base-content/50 mr-1">syn:</span>
+              {synonyms.map(s => (
+                <span key={s} className="badge badge-ghost badge-sm">{s}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <Input

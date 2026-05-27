@@ -13,6 +13,8 @@ export interface WordTag {
 
 export interface WordAnalysis {
   translation?: string;
+  definition?: string;
+  synonyms?: string[];
   gender?: Gender;
   wordClass?: WordClass;
   difficulty?: Difficulty;
