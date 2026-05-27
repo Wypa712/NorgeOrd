@@ -4,10 +4,12 @@ import LoginForm from './features/auth/LoginForm';
 import RegisterForm from './features/auth/RegisterForm';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import WordsPage from './pages/WordsPage';
+import Toaster from './components/Toaster';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster />
       <Routes>
         <Route
           path="/login"

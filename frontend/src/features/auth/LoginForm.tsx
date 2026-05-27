@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from './authStore';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import api from '../../lib/api';
+import { toast } from '../../lib/toastStore';
 import type { AuthResponse, ApiError } from '../../lib/types';
 
 export default function LoginForm() {
@@ -15,11 +16,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const errorAlertRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (token) navigate('/words', { replace: true });
@@ -48,7 +46,6 @@ export default function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
-    setServerError('');
 
     if (!validate()) return;
 
@@ -65,36 +62,24 @@ export default function LoginForm() {
       const message = ((err as { response?: { data?: ApiError } })?.response?.data as ApiError)?.error;
 
       if (status === 401) {
-        setServerError('Невірний email або пароль');
+        toast.error('Невірний email або пароль');
       } else {
-        setServerError(message ?? 'Помилка сервера. Спробуйте ще раз.');
+        toast.error(message ?? 'Помилка сервера. Спробуйте ще раз.');
       }
       setPassword('');
-      setTimeout(() => errorAlertRef.current?.focus(), 50);
     } finally {
       setLoading(false);
     }
   }
 
-  function handleBlur(field: 'email' | 'password') {
+  function handleBlur() {
     if (!submitted) return;
-    if (field === 'email') validate();
+    validate();
   }
 
   return (
     <form onSubmit={handleSubmit} aria-label="Форма входу" noValidate>
-      <h1 className="text-2xl font-semibold">Увійти</h1>
-
-      {serverError && (
-        <div
-          className="alert alert-error rounded-lg"
-          role="alert"
-          tabIndex={-1}
-          ref={errorAlertRef}
-        >
-          <span>{serverError}</span>
-        </div>
-      )}
+      <h1 className="text-2xl font-semibold mb-4">Увійти</h1>
 
       <Input
         id="email"
@@ -102,7 +87,7 @@ export default function LoginForm() {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        onBlur={() => handleBlur('email')}
+        onBlur={handleBlur}
         error={emailError}
         autoFocus
         disabled={loading}
@@ -115,17 +100,19 @@ export default function LoginForm() {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        onBlur={() => handleBlur('password')}
+        onBlur={handleBlur}
         error={passwordError}
         disabled={loading}
         autoComplete="current-password"
       />
 
-      <Button type="submit" block loading={loading}>
-        {loading ? 'Входжу…' : 'Увійти'}
-      </Button>
+      <div className="mt-4">
+        <Button type="submit" block loading={loading}>
+          {loading ? 'Входжу…' : 'Увійти'}
+        </Button>
+      </div>
 
-      <p className="text-sm text-center">
+      <p className="text-sm text-center mt-4">
         Немає акаунту?{' '}
         <Link to="/register" className="text-primary font-semibold">
           Зареєструватися

@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
 const SALT_ROUNDS = 12;
 
 export interface TokenPayload {
@@ -10,11 +9,15 @@ export interface TokenPayload {
 }
 
 export function signToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET is not set');
+  return jwt.sign(payload, secret, { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_SECRET) as TokenPayload;
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET is not set');
+  return jwt.verify(token, secret) as TokenPayload;
 }
 
 export async function hashPassword(password: string): Promise<string> {

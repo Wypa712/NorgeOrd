@@ -4,6 +4,7 @@ import { useAuthStore } from './authStore';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import api from '../../lib/api';
+import { toast } from '../../lib/toastStore';
 import type { AuthResponse, ApiError } from '../../lib/types';
 
 export default function RegisterForm() {
@@ -17,7 +18,6 @@ export default function RegisterForm() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmError, setConfirmError] = useState('');
-  const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -57,7 +57,6 @@ export default function RegisterForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
-    setServerError('');
 
     if (!validate()) return;
 
@@ -74,10 +73,10 @@ export default function RegisterForm() {
       const message = ((err as { response?: { data?: ApiError } })?.response?.data as ApiError)?.error;
 
       if (status === 409) {
-        setServerError('Цей email вже зареєстрований');
+        toast.error('Цей email вже зареєстрований');
         (document.getElementById('reg-email') as HTMLInputElement)?.focus();
       } else {
-        setServerError(message ?? 'Помилка сервера. Спробуйте ще раз.');
+        toast.error(message ?? 'Помилка сервера. Спробуйте ще раз.');
       }
     } finally {
       setLoading(false);
@@ -91,13 +90,7 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} aria-label="Форма реєстрації" noValidate>
-      <h1 className="text-2xl font-semibold">Зареєструватися</h1>
-
-      {serverError && (
-        <div className="alert alert-error rounded-lg" role="alert">
-          <span>{serverError}</span>
-        </div>
-      )}
+      <h1 className="text-2xl font-semibold mb-4">Зареєструватися</h1>
 
       <Input
         id="reg-email"
@@ -136,11 +129,13 @@ export default function RegisterForm() {
         autoComplete="new-password"
       />
 
-      <Button type="submit" block loading={loading}>
-        {loading ? 'Реєструю…' : 'Зареєструватися'}
-      </Button>
+      <div className="mt-4">
+        <Button type="submit" block loading={loading}>
+          {loading ? 'Реєструю…' : 'Зареєструватися'}
+        </Button>
+      </div>
 
-      <p className="text-sm text-center">
+      <p className="text-sm text-center mt-4">
         Вже маєте акаунт?{' '}
         <Link to="/login" className="text-primary font-semibold">
           Увійти
