@@ -20,7 +20,7 @@ router.post('/analyze', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   try {
-    const words = await wordsService.listWords(req.user!.userId);
+    const words = await wordsService.listWords(req.user!.userId, req.query.q as string | undefined);
     res.json(words);
   } catch (err) { next(err); }
 });

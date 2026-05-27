@@ -5,7 +5,7 @@ interface CreateWordInput {
   headword: string;
   translation?: string;
   gender?: 'masculine' | 'feminine' | 'neuter';
-  wordClass?: 'noun' | 'verb' | 'adjective' | 'adverb' | 'other';
+  wordClass?: 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other';
   notes?: string;
   forms?: Record<string, string>;
   examples?: string[];
@@ -17,7 +17,22 @@ interface UpdateWordInput extends Partial<Omit<CreateWordInput, 'tagNames'>> {
   personalNote?: string;
 }
 
-export async function listWords(userId: string) {
+export async function listWords(userId: string, query?: string) {
+  const trimmed = query?.trim();
+  if (trimmed) {
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "Word"
+      WHERE "userId" = ${userId}
+      AND to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, ''))
+          @@ plainto_tsquery('pg_catalog.norwegian', ${trimmed})
+    `;
+    const ids = rows.map(r => r.id);
+    return prisma.word.findMany({
+      where: { id: { in: ids }, userId },
+      include: { tags: { include: { tag: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
   return prisma.word.findMany({
     where: { userId },
     include: { tags: { include: { tag: true } } },
