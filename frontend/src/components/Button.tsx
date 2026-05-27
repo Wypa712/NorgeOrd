@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'ghost' | 'error';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'error';
   loading?: boolean;
   block?: boolean;
 }
@@ -17,6 +17,7 @@ export function Button({
 }: ButtonProps) {
   const variantClass = {
     primary: 'btn-primary',
+    secondary: 'btn-secondary',
     ghost: 'btn-ghost',
     error: 'btn-error',
   }[variant];
