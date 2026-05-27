@@ -8,7 +8,7 @@
 
 **Frontend:** React 18 + Vite + Tailwind CSS 3.4.x + DaisyUI + Zustand + TanStack Query v5 + Axios
 **Backend:** Node.js + Express 4.x + PostgreSQL + Prisma ORM + JWT + helmet + express-rate-limit
-**AI:** OpenAI API (`gpt-4o-mini` для auto-fill) + Vercel AI SDK (`ai` пакет) для стрімінгу
+**AI:** Groq через Vercel AI SDK (`@ai-sdk/groq`, модель `llama-3.3-70b-versatile`) для Phase 3 auto-fill і streaming object generation
 
 ## Key Constraints
 

@@ -65,10 +65,19 @@ export async function createWord(input: CreateWordInput): Promise<Word> {
   return data;
 }
 
+function parseAnalysisText(data: string): WordAnalysis {
+  const trimmed = data.trim();
+  const withoutFence = trimmed
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  return JSON.parse(withoutFence) as WordAnalysis;
+}
+
 export async function analyzeWord(headword: string): Promise<WordAnalysis> {
   const { data } = await api.post('/words/analyze', { headword });
   if (typeof data === 'string') {
-    return JSON.parse(data) as WordAnalysis;
+    return parseAnalysisText(data);
   }
   return data as WordAnalysis;
 }

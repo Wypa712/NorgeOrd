@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Word } from '../api/wordsApi';
+import type { Word } from '../api/wordsApi';
 import { useUpdateWord } from '../hooks/useUpdateWord';
 import { useDeleteWord } from '../hooks/useDeleteWord';
 import { Input } from '../../../components/Input';
@@ -8,7 +8,7 @@ import { SelectField } from './SelectField';
 import { WordClassBadge } from './WordClassBadge';
 import { GenderBadge } from './GenderBadge';
 
-type DrawerMode = 'view' | 'edit' | 'confirm-delete';
+type DrawerMode = 'view' | 'edit';
 
 interface Props {
   wordId: string | null;
@@ -23,14 +23,11 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
   const updateMutation = useUpdateWord();
   const deleteMutation = useDeleteWord();
 
-  // Form state for edit mode
   const [editHeadword, setEditHeadword] = useState('');
   const [editTranslation, setEditTranslation] = useState('');
   const [editGender, setEditGender] = useState<'masculine' | 'feminine' | 'neuter' | ''>('');
   const [editWordClass, setEditWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'other' | ''>('');
-  const [editDifficulty, setEditDifficulty] = useState<'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | ''>('');
   const [editNotes, setEditNotes] = useState('');
-  const [editPersonalNote, setEditPersonalNote] = useState('');
 
   const word = words.find(w => w.id === wordId) ?? null;
 
@@ -39,25 +36,20 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
     else dialogRef.current?.close();
   }, [open]);
 
-  // Reset mode when drawer opens or word changes
   useEffect(() => {
     if (open) setMode('view');
   }, [open, wordId]);
 
-  // Initialize edit form when word changes
   useEffect(() => {
     if (word) {
       setEditHeadword(word.headword);
       setEditTranslation(word.translation ?? '');
       setEditGender((word.gender ?? '') as any);
       setEditWordClass((word.wordClass ?? '') as any);
-      setEditDifficulty((word.difficulty ?? '') as any);
       setEditNotes(word.notes ?? '');
-      setEditPersonalNote(word.personalNote ?? '');
     }
   }, [wordId, word]);
 
-  // Close on mutation success
   useEffect(() => {
     if (updateMutation.isSuccess) onClose();
   }, [updateMutation.isSuccess]);
@@ -76,8 +68,6 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
       gender: editGender || undefined,
       wordClass: editWordClass || undefined,
       notes: editNotes || undefined,
-      difficulty: editDifficulty || undefined,
-      personalNote: editPersonalNote || undefined,
     });
   };
 
@@ -85,6 +75,11 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
     if (!word) return;
     deleteMutation.mutate(word.id);
   };
+
+  const formEntries = word?.forms
+    ? Object.entries(word.forms).filter(([, value]) => value)
+    : [];
+  const tagNames = word?.tags?.map(({ tag }) => tag.name) ?? [];
 
   return (
     <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle" onClose={onClose}>
@@ -97,23 +92,68 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
 
         {word && mode === 'view' && (
           <>
-            <h3 className="text-xl font-semibold mb-4">{word.headword}</h3>
-            <div className="flex flex-col gap-2">
-              {word.translation && <p>{word.translation}</p>}
-              <div className="flex gap-2">
-                {word.gender && <GenderBadge gender={word.gender} />}
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <h3 className="text-2xl font-bold">{word.headword}</h3>
+              <div className="flex gap-1 flex-wrap justify-end pt-1 shrink-0">
                 {word.wordClass && <WordClassBadge wordClass={word.wordClass} />}
+                {word.gender && <GenderBadge gender={word.gender} />}
+                {word.difficulty && <span className="badge badge-neutral">{word.difficulty}</span>}
               </div>
-              {word.difficulty && <p className="text-sm">Рівень: {word.difficulty}</p>}
-              {word.notes && <p className="text-sm text-base-content/70">{word.notes}</p>}
-              {word.personalNote && <p className="text-sm text-base-content/70">{word.personalNote}</p>}
             </div>
-            <div className="modal-action gap-2">
+            {word.translation && (
+              <p className="text-lg text-base-content/70 mb-4">{word.translation}</p>
+            )}
+            {word.examples.length > 0 && (
+              <section className="mt-4">
+                <h4 className="text-sm font-semibold mb-2">Приклади</h4>
+                <ul className="space-y-2 text-sm text-base-content/80">
+                  {word.examples.map((example, index) => (
+                    <li key={`${example}-${index}`} className="rounded bg-base-200 px-3 py-2">
+                      {example}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {formEntries.length > 0 && (
+              <section className="mt-4">
+                <h4 className="text-sm font-semibold mb-2">Форми</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {formEntries.map(([key, value]) => (
+                    <div key={key} className="rounded bg-base-200 px-3 py-2">
+                      <div className="text-xs text-base-content/50">{key}</div>
+                      <div className="font-medium break-words">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+            {tagNames.length > 0 && (
+              <section className="mt-4">
+                <h4 className="text-sm font-semibold mb-2">Теги</h4>
+                <div className="flex flex-wrap gap-2">
+                  {tagNames.map(tag => (
+                    <span key={tag} className="badge badge-outline">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+            {word.notes && (
+              <p className="mt-4 text-sm text-base-content/60 italic">{word.notes}</p>
+            )}
+            <div className="modal-action gap-2 mt-6">
               <Button variant="ghost" type="button" onClick={() => setMode('edit')}>
                 Редагувати
               </Button>
-              <Button variant="error" type="button" onClick={() => setMode('confirm-delete')}>
-                Видалити
+              <Button
+                variant="error"
+                type="button"
+                loading={deleteMutation.isPending}
+                onClick={handleDelete}
+              >
+                {deleteMutation.isPending ? 'Видаляю…' : 'Видалити'}
               </Button>
             </div>
           </>
@@ -138,41 +178,27 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
               />
               <SelectField
                 id="edit-wordClass"
-                label="Клас слова"
+                label="Ordklasse"
                 value={editWordClass}
                 onChange={e => setEditWordClass(e.target.value as any)}
               >
-                <option value="">Оберіть клас слова</option>
-                <option value="noun">іменник</option>
-                <option value="verb">дієслово</option>
-                <option value="adjective">прикметник</option>
-                <option value="adverb">прислівник</option>
-                <option value="other">інше</option>
+                <option value="">— (ikkje valt)</option>
+                <option value="noun">substantiv</option>
+                <option value="verb">verb</option>
+                <option value="adjective">adjektiv</option>
+                <option value="adverb">adverb</option>
+                <option value="other">anna</option>
               </SelectField>
               <SelectField
                 id="edit-gender"
-                label="Рід"
+                label="Kjønn"
                 value={editGender}
                 onChange={e => setEditGender(e.target.value as any)}
               >
-                <option value="">— (без роду)</option>
-                <option value="masculine">чоловічий</option>
-                <option value="feminine">жіночий</option>
-                <option value="neuter">середній</option>
-              </SelectField>
-              <SelectField
-                id="edit-difficulty"
-                label="Рівень"
-                value={editDifficulty}
-                onChange={e => setEditDifficulty(e.target.value as any)}
-              >
-                <option value="">— (не вказано)</option>
-                <option value="A1">A1</option>
-                <option value="A2">A2</option>
-                <option value="B1">B1</option>
-                <option value="B2">B2</option>
-                <option value="C1">C1</option>
-                <option value="C2">C2</option>
+                <option value="">— (ikkje valt)</option>
+                <option value="masculine">hankjønn</option>
+                <option value="feminine">hokjønn</option>
+                <option value="neuter">inkjekjønn</option>
               </SelectField>
               <div className="form-control w-full">
                 <label className="label" htmlFor="edit-notes">
@@ -186,18 +212,6 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                   rows={3}
                 />
               </div>
-              <div className="form-control w-full">
-                <label className="label" htmlFor="edit-personalNote">
-                  <span className="label-text font-semibold">Особиста нотатка</span>
-                </label>
-                <textarea
-                  id="edit-personalNote"
-                  className="textarea textarea-bordered w-full"
-                  value={editPersonalNote}
-                  onChange={e => setEditPersonalNote(e.target.value)}
-                  rows={2}
-                />
-              </div>
               <div className="modal-action gap-2">
                 <Button variant="ghost" type="button" onClick={() => setMode('view')}>
                   Скасувати
@@ -207,26 +221,6 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 </Button>
               </div>
             </form>
-          </>
-        )}
-
-        {word && mode === 'confirm-delete' && (
-          <>
-            <p className="text-base font-semibold">Видалити «{word.headword}»?</p>
-            <p className="text-sm text-base-content/70">Цю дію не можна скасувати.</p>
-            <div className="modal-action gap-2">
-              <Button variant="ghost" type="button" onClick={() => setMode('view')}>
-                Скасувати
-              </Button>
-              <Button
-                variant="error"
-                type="button"
-                loading={deleteMutation.isPending}
-                onClick={handleDelete}
-              >
-                {deleteMutation.isPending ? 'Видаляю…' : 'Видалити'}
-              </Button>
-            </div>
           </>
         )}
       </div>
