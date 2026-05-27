@@ -1,7 +1,22 @@
 import { Router } from 'express';
+import { analyzeWord } from '../services/ai';
 import * as wordsService from '../services/words';
 
 const router = Router();
+
+router.post('/analyze', async (req, res, next) => {
+  const headword = req.body?.headword;
+  if (!headword || typeof headword !== 'string' || !headword.trim()) {
+    return res.status(400).json({ error: 'headword is required' });
+  }
+
+  try {
+    const result = analyzeWord(headword.trim());
+    result.pipeTextStreamToResponse(res);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get('/', async (req, res, next) => {
   try {
