@@ -20,18 +20,30 @@ interface UpdateWordInput extends Partial<Omit<CreateWordInput, 'tagNames'>> {
 export async function listWords(userId: string, query?: string) {
   const trimmed = query?.trim();
   if (trimmed) {
-    const rows = await prisma.$queryRaw<{ id: string }[]>`
-      SELECT id FROM "Word"
-      WHERE "userId" = ${userId}
-      AND to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, ''))
-          @@ plainto_tsquery('pg_catalog.norwegian', ${trimmed})
-      ORDER BY ts_rank(
-        to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, '')),
-        plainto_tsquery('pg_catalog.norwegian', ${trimmed})
-      ) DESC
-    `;
-    if (rows.length === 0) return [];
-    const ids = rows.map(r => r.id);
+    const likePattern = `%${trimmed}%`;
+    const [ftsRows, likeRows] = await Promise.all([
+      prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "Word"
+        WHERE "userId" = ${userId}
+        AND to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, ''))
+            @@ plainto_tsquery('pg_catalog.norwegian', ${trimmed})
+        ORDER BY ts_rank(
+          to_tsvector('pg_catalog.norwegian', headword || ' ' || COALESCE(translation, '')),
+          plainto_tsquery('pg_catalog.norwegian', ${trimmed})
+        ) DESC
+      `,
+      prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "Word"
+        WHERE "userId" = ${userId}
+        AND (headword ILIKE ${likePattern} OR translation ILIKE ${likePattern})
+        ORDER BY headword
+      `,
+    ]);
+    const ftsIds = ftsRows.map(r => r.id);
+    const ftsSet = new Set(ftsIds);
+    const likeOnlyIds = likeRows.map(r => r.id).filter(id => !ftsSet.has(id));
+    const ids = [...ftsIds, ...likeOnlyIds];
+    if (ids.length === 0) return [];
     const words = await prisma.word.findMany({
       where: { id: { in: ids }, userId },
       include: { tags: { include: { tag: true } } },

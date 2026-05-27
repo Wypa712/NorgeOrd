@@ -234,7 +234,9 @@ export default function WordsPage() {
   };
 
   const handleSaved = () => {
-    setActiveTab('dictionary');
+    setAnalysis(null);
+    setHeadword('');
+    setAnalysisKey(current => current + 1);
   };
 
   return (
