@@ -86,17 +86,35 @@ export function TranslatorPanel() {
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-3">
-        <label className="form-control w-full flex-1">
+        <div className="form-control w-full flex-1">
           <span className="label-text font-semibold text-sm mb-1">{sourceLabel}</span>
-          <textarea
-            className="textarea textarea-bordered w-full resize-none"
-            rows={5}
-            value={sourceText}
-            onChange={e => setSourceText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Введи текст для перекладу..."
-          />
-        </label>
+          <div className="relative">
+            <textarea
+              className="textarea textarea-bordered w-full resize-none"
+              rows={5}
+              value={sourceText}
+              onChange={e => setSourceText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Введи текст для перекладу..."
+            />
+            {sourceText && (
+              <button
+                type="button"
+                className="absolute top-2 right-2 btn btn-ghost btn-xs btn-square opacity-60 hover:opacity-100"
+                aria-label="Очистити"
+                onClick={() => {
+                  setSourceText('');
+                  setResultText('');
+                  setFallback(false);
+                  setTextToTranslate('');
+                  lastKeyRef.current = { text: '', dir: '' };
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
 
         <button
           type="button"

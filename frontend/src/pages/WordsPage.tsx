@@ -293,8 +293,9 @@ export default function WordsPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <div role="tablist" className="tabs tabs-boxed w-full sm:w-fit">
+    <div className="mx-auto w-full max-w-5xl pb-20 sm:pb-0">
+      {/* Desktop tabs — hidden on mobile (tabs are fixed-bottom on mobile) */}
+      <div role="tablist" className="tabs tabs-boxed hidden sm:flex w-fit">
         <button
           type="button"
           role="tab"
@@ -319,6 +320,28 @@ export default function WordsPage() {
         >
           Перекладач
         </button>
+      </div>
+
+      {/* Mobile fixed bottom tabs */}
+      <div
+        role="tablist"
+        className="fixed bottom-0 left-0 right-0 z-30 flex sm:hidden bg-base-100 border-t border-base-200"
+      >
+        {(['analyze', 'dictionary', 'translate'] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            role="tab"
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === tab
+                ? 'text-primary border-t-2 border-primary -mt-px'
+                : 'text-base-content/60'
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === 'analyze' ? 'AI пошук' : tab === 'dictionary' ? 'Словник' : 'Перекладач'}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'analyze' && (
@@ -401,11 +424,9 @@ export default function WordsPage() {
         </main>
       )}
 
-      {activeTab === 'translate' && (
-        <main className="pt-6">
-          <TranslatorPanel />
-        </main>
-      )}
+      <main className={`pt-6 ${activeTab !== 'translate' ? 'hidden' : ''}`}>
+        <TranslatorPanel />
+      </main>
 
       {analysis && activeTab === 'analyze' && !chatOpen && (
         <button
