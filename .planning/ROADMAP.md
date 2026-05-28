@@ -12,7 +12,7 @@
 - [x] **Phase 2: Core Word CRUD** - Complete word lifecycle without AI dependency
 - [x] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
 - [x] **Phase 4: Search** - Dictionary is navigable by word or translation
-- [ ] **Phase 5: Translator** - Ukrainian ↔ Nynorsk translation tab via Apertium API
+- [ ] **Phase 5: Translator** - Ukrainian ↔ Nynorsk translation tab via MyMemory + Apertium frontend pipeline
 
 ---
 
@@ -76,6 +76,21 @@ Plans:
 - [x] 04-01-PLAN.md — Search: useDebounce + FTS backend + frontend wiring (all 7 files)
 **UI hint**: yes
 
+### Phase 5: Translator
+**Goal:** Users can translate text between Ukrainian and Nynorsk via a dedicated tab, using a frontend-side two-step pipeline (MyMemory + Apertium).
+**Mode:** extension
+**Depends on:** Phase 4
+**Requirements:** TRANSLATOR-01
+**Success Criteria**:
+1. User can navigate to the "Перекладач" tab and see a two-textarea Google Translate-style layout
+2. User enters Ukrainian text, clicks "Перекласти", receives Nynorsk translation (MyMemory uk→nb + Apertium nob→nno)
+3. User can swap direction (nn→uk) and the pipeline reverses correctly
+4. Text over 500 bytes shows an error; no request sent
+5. When Apertium step fails (fallback=true), an inline warning about possible Bokmål forms appears
+**Plans:** 1 plan
+Plans:
+- [ ] 05-01-PLAN.md — Frontend translator: translateApi + useTranslate + TranslatorPanel + WordsPage tab extension
+
 ---
 
 ## Progress
@@ -86,9 +101,9 @@ Plans:
 | 2. Core Word CRUD | 3/3 | Complete | 2026-05-27 |
 | 3. AI Auto-fill | 3/3 | Complete | 2026-05-27 |
 | 4. Search | 1/1 | Complete | 2026-05-28 |
-| 5. Translator | 0/? | Planned | — |
+| 5. Translator | 0/1 | In Planning | — |
 
 ---
 
 *Roadmap created: 2026-05-27*
-*Last updated: 2026-05-28 — Phase 4 complete; v1 MVP done (10/10 requirements)*
+*Last updated: 2026-05-28 — Phase 5 planned; frontend-only translate pipeline (MyMemory + Apertium)*
