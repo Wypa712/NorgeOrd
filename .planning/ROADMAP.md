@@ -12,6 +12,7 @@
 - [x] **Phase 2: Core Word CRUD** - Complete word lifecycle without AI dependency
 - [x] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
 - [x] **Phase 4: Search** - Dictionary is navigable by word or translation
+- [ ] **Phase 5: Translator** - Ukrainian ↔ Nynorsk translation tab via Apertium API
 
 ---
 
@@ -85,6 +86,7 @@ Plans:
 | 2. Core Word CRUD | 3/3 | Complete | 2026-05-27 |
 | 3. AI Auto-fill | 3/3 | Complete | 2026-05-27 |
 | 4. Search | 1/1 | Complete | 2026-05-28 |
+| 5. Translator | 0/? | Planned | — |
 
 ---
 
