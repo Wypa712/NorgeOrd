@@ -18,6 +18,8 @@ enum WordClass {
   verb
   adjective
   adverb
+  pronoun
+  sentence
   other
 }
 

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import type { Word } from '../api/wordsApi';
+import type { Difficulty, Gender, Word, WordClass, WordForms } from '../api/wordsApi';
 import { useUpdateWord } from '../hooks/useUpdateWord';
 import { useDeleteWord } from '../hooks/useDeleteWord';
 import { useWordChat } from '../hooks/useWordChat';
@@ -29,8 +29,11 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
 
   const [editHeadword, setEditHeadword] = useState('');
   const [editTranslation, setEditTranslation] = useState('');
-  const [editGender, setEditGender] = useState<'masculine' | 'feminine' | 'neuter' | ''>('');
-  const [editWordClass, setEditWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other' | ''>('');
+  const [editGender, setEditGender] = useState<Gender | ''>('');
+  const [editWordClass, setEditWordClass] = useState<WordClass | ''>('');
+  const [editDifficulty, setEditDifficulty] = useState<Difficulty | ''>('');
+  const [editForms, setEditForms] = useState<WordForms>({});
+  const [editExamples, setEditExamples] = useState<string[]>(['', '', '']);
   const [editNotes, setEditNotes] = useState('');
 
   const word = words.find(w => w.id === wordId) ?? null;
@@ -41,8 +44,13 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
   }, [open]);
 
   useEffect(() => {
-    if (open) setMode('view');
-    if (!open) { resetChat(); setChatInput(''); }
+    if (open) {
+      setMode('view');
+    }
+    if (!open) {
+      resetChat();
+      setChatInput('');
+    }
   }, [open, wordId]);
 
   useEffect(() => {
@@ -53,8 +61,15 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
     if (word) {
       setEditHeadword(word.headword);
       setEditTranslation(word.translation ?? '');
-      setEditGender((word.gender ?? '') as any);
-      setEditWordClass((word.wordClass ?? '') as any);
+      setEditGender(word.gender ?? '');
+      setEditWordClass(word.wordClass ?? '');
+      setEditDifficulty(word.difficulty ?? '');
+      setEditForms(word.forms ?? {});
+      setEditExamples(
+        word.examples.length > 0
+          ? [...word.examples, ...Array(Math.max(0, 3 - word.examples.length)).fill('')]
+          : ['', '', ''],
+      );
       setEditNotes(word.notes ?? '');
     }
   }, [wordId, word]);
@@ -70,12 +85,19 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!word) return;
+    const cleanForms = Object.fromEntries(
+      Object.entries(editForms).filter(([, value]) => value.trim()),
+    );
+    const cleanExamples = editExamples.map(example => example.trim()).filter(Boolean);
     updateMutation.mutate({
       id: word.id,
       headword: editHeadword,
       translation: editTranslation || undefined,
       gender: editGender || undefined,
       wordClass: editWordClass || undefined,
+      difficulty: editDifficulty || undefined,
+      forms: Object.keys(cleanForms).length > 0 ? cleanForms : undefined,
+      examples: cleanExamples.length > 0 ? cleanExamples : undefined,
       notes: editNotes || undefined,
     });
   };
@@ -83,6 +105,15 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
   const handleDelete = () => {
     if (!word) return;
     deleteMutation.mutate(word.id);
+  };
+
+  const addFormField = () => {
+    const nextIndex = Object.keys(editForms).length + 1;
+    let key = `form_${nextIndex}`;
+    while (Object.prototype.hasOwnProperty.call(editForms, key)) {
+      key = `form_${Number(key.replace('form_', '')) + 1}`;
+    }
+    setEditForms(current => ({ ...current, [key]: '' }));
   };
 
   const formEntries = word?.forms
@@ -192,7 +223,7 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 id="edit-wordClass"
                 label="Ordklasse"
                 value={editWordClass}
-                onChange={e => setEditWordClass(e.target.value as any)}
+                onChange={e => setEditWordClass(e.target.value as WordClass | '')}
               >
                 <option value="">— (ikkje valt)</option>
                 <option value="noun">substantiv</option>
@@ -207,12 +238,26 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 id="edit-gender"
                 label="Kjønn"
                 value={editGender}
-                onChange={e => setEditGender(e.target.value as any)}
+                onChange={e => setEditGender(e.target.value as Gender | '')}
               >
                 <option value="">— (ikkje valt)</option>
                 <option value="masculine">hankjønn</option>
                 <option value="feminine">hokjønn</option>
                 <option value="neuter">inkjekjønn</option>
+              </SelectField>
+              <SelectField
+                id="edit-difficulty"
+                label="Nivå (CEFR)"
+                value={editDifficulty}
+                onChange={e => setEditDifficulty(e.target.value as Difficulty | '')}
+              >
+                <option value="">— (ikkje valt)</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
               </SelectField>
               <div className="form-control w-full">
                 <label className="label" htmlFor="edit-notes">
@@ -225,6 +270,39 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                   onChange={e => setEditNotes(e.target.value)}
                   rows={3}
                 />
+              </div>
+              {editWordClass && editWordClass !== 'sentence' && (
+                <div className="form-control w-full">
+                  <span className="label-text font-semibold mb-1 block">Форми</span>
+                  {Object.entries(editForms).map(([key, value]) => (
+                    <div key={key} className="flex gap-2 mb-2">
+                      <input className="input input-bordered input-sm flex-1" value={key} readOnly />
+                      <input
+                        className="input input-bordered input-sm flex-1"
+                        value={value}
+                        onChange={e => setEditForms(prev => ({ ...prev, [key]: e.target.value }))}
+                      />
+                    </div>
+                  ))}
+                  <Button variant="ghost" type="button" className="btn-sm self-start" onClick={addFormField}>
+                    Додати форму
+                  </Button>
+                </div>
+              )}
+              <div className="form-control w-full">
+                <span className="label-text font-semibold mb-1 block">Приклади</span>
+                {editExamples.map((example, index) => (
+                  <textarea
+                    key={index}
+                    className="textarea textarea-bordered w-full mb-2 text-sm"
+                    rows={2}
+                    value={example}
+                    placeholder="Необов'язково"
+                    onChange={e => setEditExamples(prev => prev.map((value, i) => (
+                      i === index ? e.target.value : value
+                    )))}
+                  />
+                ))}
               </div>
               <div className="modal-action gap-2">
                 <Button variant="ghost" type="button" onClick={() => setMode('view')}>

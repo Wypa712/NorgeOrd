@@ -1,9 +1,11 @@
 const WORD_CLASS_LABELS: Record<string, string> = {
-  noun: 'іменник',
-  verb: 'дієслово',
-  adjective: 'прикметник',
-  adverb: 'прислівник',
-  other: 'інше',
+  noun: 'subst.',
+  verb: 'verb',
+  adjective: 'adj.',
+  adverb: 'adv.',
+  pronoun: 'pron.',
+  sentence: 'setn.',
+  other: 'anna',
 };
 
 export function WordClassBadge({ wordClass }: { wordClass: string }) {

@@ -3,12 +3,6 @@ const APERTIUM = 'https://www.apertium.org/apy/translate';
 const MYMEMORY_EMAIL = (import.meta.env.VITE_MYMEMORY_EMAIL as string | undefined)?.trim();
 const REQUEST_TIMEOUT_MS = 8000;
 
-function requestSignal(): AbortSignal {
-  return AbortController.prototype.constructor
-    ? new AbortController().signal
-    : (undefined as unknown as AbortSignal);
-}
-
 function withTimeout(signal?: AbortSignal): AbortSignal {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);

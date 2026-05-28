@@ -39,7 +39,11 @@ Return a JSON object with these fields:
 - difficulty: CEFR level - one of "A1", "A2", "B1", "B2", "C1", "C2"
 - forms: flat object with Nynorsk inflection forms:
     nouns: { sing_indef, sing_def, pl_indef, pl_def }
+      - sing_indef MUST include the indefinite article based on gender: "ein" (masculine), "ei" (feminine), "eit" (neuter) — e.g. "ein bil", "ei bok", "eit hus"
+      - sing_def, pl_indef, pl_def: just the inflected form, no article — e.g. "bilen", "bilar", "bilane"
     verbs: { inf, pres, past, past_part }
+      - inf value MUST start with "å": e.g. "å skriva", "å lesa"
+      - past_part value MUST start with "har": e.g. "har skrive", "har lese"
     adjectives: { positive, comparative, superlative }
     pronouns/adverbs/sentences/other: {} (empty object)
 - If the input is a full sentence or phrase, set wordClass to "sentence" and forms to {}

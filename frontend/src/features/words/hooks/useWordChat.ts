@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getChatHistory, sendChatMessage } from '../api/chatApi';
 import type { ChatMessage } from '../api/chatApi';
+import { toast } from '../../../lib/toastStore';
 
 export function useWordChat(wordId: string | null) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -36,6 +37,7 @@ export function useWordChat(wordId: string | null) {
       setMessages(prev => [...prev, assistantMsg]);
     } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      toast.error('Не вдалося надіслати повідомлення');
     } finally {
       setLoading(false);
     }

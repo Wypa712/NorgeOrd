@@ -17,8 +17,9 @@ export function TranslatorPanel() {
 
   const debouncedSource = useDebounce(sourceText, 600);
   const mutation = useTranslate();
-  const isTranslating = mutation.isPending;
-  const lastKeyRef = useRef<{ text: string; dir: string }>({ text: '', dir: '' });
+  const showLoading = mutation.isPending && sourceText.trim().length > 0;
+  const lastKeyRef = useRef('');
+  const abortRef = useRef<AbortController | null>(null);
 
   // Debounce path — update textToTranslate after pause
   useEffect(() => {
@@ -30,11 +31,12 @@ export function TranslatorPanel() {
     const trimmed = textToTranslate.trim();
     const key = `${trimmed}|${direction}`;
     if (!trimmed) {
+      abortRef.current?.abort();
       setResultText('');
       setFallback(false);
       return;
     }
-    if (lastKeyRef.current.text === key) return;
+    if (lastKeyRef.current === key) return;
 
     const bytes = new TextEncoder().encode(trimmed).length;
     if (bytes > 500) {
@@ -42,15 +44,24 @@ export function TranslatorPanel() {
       return;
     }
 
-    lastKeyRef.current = { text: key, dir: direction };
-    mutation.mutateAsync({ text: trimmed, sourceLang, targetLang })
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    lastKeyRef.current = key;
+    mutation.mutateAsync({ text: trimmed, sourceLang, targetLang, signal: controller.signal })
       .then(result => {
         setResultText(result.text);
         setFallback(result.fallback);
       })
       .catch(() => {
-        toast.error('Помилка перекладу. Спробуй ще раз.');
+        if (!controller.signal.aborted) {
+          toast.error('Помилка перекладу. Спробуй ще раз.');
+        }
       });
+
+    return () => {
+      controller.abort();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textToTranslate, direction]);
 
@@ -58,7 +69,7 @@ export function TranslatorPanel() {
     if (e.key === ' ' || e.key === 'Tab') {
       if (e.key === 'Tab') e.preventDefault();
       // Trigger immediately with current text (before debounce fires)
-      lastKeyRef.current = { text: '', dir: '' };
+      lastKeyRef.current = '';
       setTextToTranslate(sourceText);
     }
   };
@@ -70,7 +81,7 @@ export function TranslatorPanel() {
       setTextToTranslate(resultText);
       setResultText('');
       setFallback(false);
-      lastKeyRef.current = { text: '', dir: '' };
+      lastKeyRef.current = '';
     }
   };
 
@@ -107,21 +118,24 @@ export function TranslatorPanel() {
                   setResultText('');
                   setFallback(false);
                   setTextToTranslate('');
-                  lastKeyRef.current = { text: '', dir: '' };
+                  lastKeyRef.current = '';
                 }}
               >
                 ✕
               </button>
             )}
           </div>
+          <div className={`text-xs mt-1 text-right ${sourceText.length > 400 ? 'text-error' : 'text-base-content/40'}`}>
+            {sourceText.length} / ~500
+          </div>
         </div>
 
         <button
           type="button"
-          className="btn btn-ghost btn-square self-center mx-auto sm:mt-8"
+          className="btn btn-ghost btn-square self-center mx-auto sm:mt-6 sm:mb-6"
           aria-label="Поміняти мови місцями"
           onClick={handleSwap}
-          disabled={isTranslating}
+          disabled={showLoading}
         >
           ⇄
         </button>
@@ -129,7 +143,7 @@ export function TranslatorPanel() {
         <label className="form-control w-full flex-1">
           <span className="label-text font-semibold text-sm mb-1">
             {targetLabel}
-            {isTranslating && (
+            {showLoading && (
               <span className="loading loading-dots loading-xs ml-2 opacity-60" />
             )}
           </span>
@@ -156,7 +170,7 @@ export function TranslatorPanel() {
       </div>
 
       {fallback && (
-        <div className="mt-3 text-xs text-warning">Результат може містити Bokmål форми</div>
+        <div className="mt-3 text-xs text-warning">Apertium недоступний — переклад може бути на Bokmål</div>
       )}
     </div>
   );

@@ -13,6 +13,7 @@
 - [x] **Phase 3: AI Auto-fill** - One-field entry triggers full Nynorsk word analysis
 - [x] **Phase 4: Search** - Dictionary is navigable by word or translation
 - [ ] **Phase 5: Translator** - Ukrainian ↔ Nynorsk translation tab via MyMemory + Apertium frontend pipeline
+- [ ] **Phase 6: Polish & Audit** - Fix critical bugs, close UX gaps, harden backend security
 
 ---
 
@@ -91,6 +92,24 @@ Plans:
 Plans:
 - [ ] 05-01-PLAN.md — Frontend translator: translateApi + useTranslate + TranslatorPanel + WordsPage tab extension
 
+### Phase 6: Polish & Audit
+**Goal:** Fix critical bugs and close UX gaps found in the full-project audit — wire the dead manual add-word flow, expand the word edit form to all 10 fields, add mobile-safe delete confirmation, surface chat errors as toasts, harden backend against field injection and error leaks, and polish the Translator tab.
+**Mode:** extension
+**Depends on:** Phase 5
+**Requirements:** POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05
+**Success Criteria**:
+1. FAB appears on the dictionary tab and opens AddWordDrawer for manual word entry
+2. WordDetailDrawer edit mode exposes and saves forms, examples, difficulty
+3. Word deletion requires a second confirmation tap
+4. Chat send failures show a toast instead of silently removing the message
+5. Backend PATCH rejects injected fields (userId, rawAiOutput, createdAt)
+6. Global Express error handler returns sanitised JSON — no stack traces
+7. Translator shows char counter and improved fallback warning; requestSignal() dead code removed
+8. React ErrorBoundary in App.tsx shows Ukrainian fallback instead of blank screen
+**Plans:** 1 plan
+Plans:
+- [ ] 06-01-PLAN.md — Full audit polish: FAB wiring + edit form + delete confirm + chat toasts + backend hardening + translator UX + ErrorBoundary
+
 ---
 
 ## Progress
@@ -101,9 +120,10 @@ Plans:
 | 2. Core Word CRUD | 3/3 | Complete | 2026-05-27 |
 | 3. AI Auto-fill | 3/3 | Complete | 2026-05-27 |
 | 4. Search | 1/1 | Complete | 2026-05-28 |
-| 5. Translator | 0/1 | In Planning | — |
+| 5. Translator | 1/1 | Complete | 2026-05-28 |
+| 6. Polish & Audit | 0/1 | Planning | — |
 
 ---
 
 *Roadmap created: 2026-05-27*
-*Last updated: 2026-05-28 — Phase 5 planned; frontend-only translate pipeline (MyMemory + Apertium)*
+*Last updated: 2026-05-28 — Phase 6 planned; full-project audit polish pass*

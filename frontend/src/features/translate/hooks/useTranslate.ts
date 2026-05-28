@@ -6,6 +6,7 @@ interface TranslateInput {
   text: string;
   sourceLang: string;
   targetLang: string;
+  signal?: AbortSignal;
 }
 
 interface TranslateResult {
@@ -17,7 +18,9 @@ export function useTranslate(
   options?: UseMutationOptions<TranslateResult, Error, TranslateInput>,
 ) {
   return useMutation<TranslateResult, Error, TranslateInput>({
-    mutationFn: ({ text, sourceLang, targetLang }) => translate(text, sourceLang, targetLang),
+    mutationFn: ({ text, sourceLang, targetLang, signal }) => (
+      translate(text, sourceLang, targetLang, signal)
+    ),
     ...options,
   });
 }

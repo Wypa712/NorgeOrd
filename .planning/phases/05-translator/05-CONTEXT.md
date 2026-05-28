@@ -14,8 +14,8 @@ Add a third tab "Перекладач" to the existing DaisyUI tabs switch in Wo
 ## Implementation Decisions
 
 ### Translation API
-- **D-01:** Use **Apertium** — open-source, free, no API key required. Language pairs: `uk-nn` and `nn-uk`. Public API: `https://api.apertium.org`.
-- **D-02:** Translation is done via **backend proxy** (`GET /api/translate?text=...&dir=uk-nn`). Backend calls Apertium and returns the result. Avoids CORS issues and keeps the external API call server-side.
+- **D-01 [REVISED]:** Use **two-step pipeline** — MyMemory (`https://api.mymemory.translated.net/get`) + Apertium (`https://www.apertium.org/apy/translate`). Apertium uk↔nn не існує (verified via listPairs). Pipeline: `uk→nn` = MyMemory `uk|nb` → Apertium `nob|nno`; `nn→uk` = Apertium `nno|nob` → MyMemory `nb|uk`. Optional `VITE_MYMEMORY_EMAIL` env var for higher quota. Returns `{text: string, fallback: boolean}` where `fallback=true` means Apertium step failed (result may be Bokmål).
+- **D-02 [OVERRIDDEN — frontend-direct]:** Translation is done **directly on the frontend** via fetch() to MyMemory and Apertium. Both APIs support CORS. No backend proxy needed. `translateApi.ts` lives in `frontend/src/features/translate/api/` and calls external APIs directly. No backend files modified. *(Original decision: backend proxy — overridden by user during planning after research revealed Apertium uk↔nn unavailable.)*
 
 ### Navigation / UI Integration
 - **D-03:** Add `'translate'` as the third value to the existing `ActiveTab` type in `WordsPage.tsx` (currently `'analyze' | 'dictionary'`). Add a third tab button "Перекладач" inside the existing `tabs tabs-boxed` div.

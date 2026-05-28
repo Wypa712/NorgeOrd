@@ -19,7 +19,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
   const [headword, setHeadword] = useState('');
   const [translation, setTranslation] = useState('');
   const [gender, setGender] = useState<'masculine' | 'feminine' | 'neuter' | ''>('');
-  const [wordClass, setWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'other' | ''>('');
+  const [wordClass, setWordClass] = useState<'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other' | ''>('');
   const [difficulty, setDifficulty] = useState<Difficulty | ''>('');
   const [forms, setForms] = useState<WordForms>({});
   const [examples, setExamples] = useState<string[]>([]);
@@ -70,7 +70,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
       wordClass: wordClass || undefined,
       notes: notes || undefined,
       difficulty: difficulty || undefined,
-      forms: Object.keys(forms).length ? forms : undefined,
+      forms: wordClass !== 'sentence' && Object.keys(forms).length ? forms : undefined,
       examples: cleanExamples.length ? cleanExamples : undefined,
       tagNames: cleanTags.length ? cleanTags : undefined,
     });
@@ -148,6 +148,8 @@ export function AddWordDrawer({ open, onClose }: Props) {
             <option value="verb">verb</option>
             <option value="adjective">adjektiv</option>
             <option value="adverb">adverb</option>
+            <option value="pronoun">pronomen</option>
+            <option value="sentence">setning</option>
             <option value="other">anna</option>
           </SelectField>
           <SelectField
@@ -175,7 +177,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
             <option value="C1">C1</option>
             <option value="C2">C2</option>
           </SelectField>
-          {formEntries.length > 0 && (
+          {wordClass !== 'sentence' && formEntries.length > 0 && (
             <div className="form-control w-full">
               <span className="label-text font-semibold mb-2">Форми</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

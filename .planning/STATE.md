@@ -11,11 +11,11 @@
 
 ## Current Position
 
-**Phase:** 4 — Search
-**Status:** Complete ✓ — v1 MVP done
+**Phase:** 6 — Polish & Audit
+**Status:** Planning
 
 ```
-Progress: [████████████████████] Phase 1 ✓ → Phase 2 ✓ → Phase 3 ✓ → Phase 4 ✓
+Progress: [████████████████████░░░░░] Phase 1 ✓ → Phase 2 ✓ → Phase 3 ✓ → Phase 4 ✓ → Phase 5 ✓ → Phase 6 ◆
 ```
 
 ---
@@ -25,8 +25,8 @@ Progress: [████████████████████] Phase 1
 | Metric | Value |
 |--------|-------|
 | Phases total | 4 |
-| Phases complete | 4 |
-| Plans complete | 10 |
+| Phases complete | 5 |
+| Plans complete | 11 |
 | Requirements mapped | 10/10 |
 | Requirements complete | 10/10 |
 
@@ -81,5 +81,5 @@ None.
 ## Session Continuity
 
 **Last updated:** 2026-05-28
-**Last action:** Phase 4 complete — FTS + ILIKE search, debounce, definition/synonyms in analysis card.
-**Next action:** v1 MVP shipped. Подальший розвиток за потребою.
+**Last action:** Phase 6 planned — project-wide audit, 24 findings categorized, 06-01-PLAN.md created (5 tasks: FAB wiring, edit form expansion, delete confirm, backend hardening, translator polish).
+**Next action:** `/gsd-execute-phase 6`

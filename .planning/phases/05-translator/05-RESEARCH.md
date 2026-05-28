@@ -124,7 +124,7 @@
 
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
-| Translation API call | API / Backend (Express) | — | Уникнути CORS, ховати зовнішній URL від клієнта |
+| Translation API call | Browser / Client (frontend-direct) | — | Обидва API (MyMemory, Apertium) підтримують CORS. Frontend-direct підтверджено D-02 [OVERRIDDEN]. Немає необхідності в backend proxy. |
 | Input validation (text length) | Frontend | Backend (sanity check) | UX feedback до відправки, backend захист |
 | Direction state (uk↔no) | Frontend | — | UI-стан, не персистований |
 | Translation result display | Frontend | — | Read-only textarea, місцевий стан |
@@ -530,17 +530,15 @@ const isOverLimit = byteLength > 480; // 20-byte margin
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Apertium як locked decision (D-01) потребує перегляду**
    - Що ми знаємо: Apertium uk↔nn не існує (verified)
-   - Що незрозуміло: Чи прийнятна для користувача заміна на MyMemory з Bokmål output?
-   - Рекомендація: Плановик має зафіксувати вибір MyMemory як заміну D-01. Якщо Bokmål неприйнятний — розглянути DeepL API (безкоштовний tier 500K chars/month, але потребує реєстрацію).
+   - **RESOLVED:** Користувач підтвердив двоетапний pipeline: MyMemory `uk|nb` → Apertium `nob|nno` (і навпаки). D-01 переглянуто в CONTEXT.md. Функція `translate()` повертає `{text, fallback}` — при Apertium failover `fallback=true` і результат може бути Bokmål.
 
 2. **MyMemory квота при багатокористувацькому режимі**
    - Що ми знаємо: 5000 chars/day для анонімних запитів, прив'язка до IP серверу
-   - Що незрозуміло: Чи достатньо для особистого use case (одна людина)?
-   - Рекомендація: Для особистого застосунку — достатньо. Якщо не вистачатиме — додати `de=email` параметр (50K chars/day).
+   - **RESOLVED:** Особистий застосунок — одна людина. 5000 chars/day достатньо. Опціональний `VITE_MYMEMORY_EMAIL` env var для підвищення квоти до 50K chars/day. Зафіксовано в D-01 [REVISED] CONTEXT.md.
 
 ---
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { previewChatMessage } from '../api/chatApi';
 import type { ChatMessage, PreviewWordContext } from '../api/chatApi';
+import { toast } from '../../../lib/toastStore';
 
 export function useAnalysisChat(wordContext: PreviewWordContext | null) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -30,6 +31,7 @@ export function useAnalysisChat(wordContext: PreviewWordContext | null) {
       setMessages(prev => [...prev, assistantMsg]);
     } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      toast.error('Не вдалося надіслати повідомлення');
     } finally {
       setLoading(false);
     }

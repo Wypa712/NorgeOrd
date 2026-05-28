@@ -101,7 +101,31 @@ export async function getWordForUser(userId: string, wordId: string) {
 
 export async function updateWord(userId: string, wordId: string, data: UpdateWordInput) {
   await getWordForUser(userId, wordId);
-  return prisma.word.update({ where: { id: wordId }, data });
+  const {
+    headword,
+    translation,
+    gender,
+    wordClass,
+    notes,
+    personalNote,
+    difficulty,
+    forms,
+    examples,
+  } = data;
+  const safeData = Object.fromEntries(
+    Object.entries({
+      headword,
+      translation,
+      gender,
+      wordClass,
+      notes,
+      personalNote,
+      difficulty,
+      forms,
+      examples,
+    }).filter(([, value]) => value !== undefined),
+  );
+  return prisma.word.update({ where: { id: wordId }, data: safeData });
 }
 
 export async function deleteWord(userId: string, wordId: string) {
