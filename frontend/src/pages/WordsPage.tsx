@@ -17,8 +17,9 @@ import type {
   WordForms,
 } from '../features/words/api/wordsApi';
 import type { ChatMessage } from '../features/words/api/chatApi';
+import { TranslatorPanel } from '../features/translate/components/TranslatorPanel';
 
-type ActiveTab = 'analyze' | 'dictionary';
+type ActiveTab = 'analyze' | 'dictionary' | 'translate';
 
 const difficultyLevels: Difficulty[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
@@ -310,6 +311,14 @@ export default function WordsPage() {
         >
           Словник
         </button>
+        <button
+          type="button"
+          role="tab"
+          className={`tab ${activeTab === 'translate' ? 'tab-active' : ''}`}
+          onClick={() => setActiveTab('translate')}
+        >
+          Перекладач
+        </button>
       </div>
 
       {activeTab === 'analyze' && (
@@ -389,6 +398,12 @@ export default function WordsPage() {
             open={selectedWordId !== null}
             onClose={() => setSelectedWordId(null)}
           />
+        </main>
+      )}
+
+      {activeTab === 'translate' && (
+        <main className="pt-6">
+          <TranslatorPanel />
         </main>
       )}
 
