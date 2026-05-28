@@ -51,10 +51,10 @@ Exceptions: Touch target for swap button and copy button: minimum 44×44px (mobi
 |------|------|--------|-------------|
 | Body | 14px | 400 | 1.5 |
 | Label | 14px | 600 | 1.25 |
-| Heading | 24px | 700 | 1.2 |
+| Heading | 24px | 600 | 1.2 |
 | Display | — | — | — |
 
-Source: Matches existing patterns in `WordsPage.tsx` — `text-sm font-semibold` for labels, `text-2xl font-bold` for headwords, body text unstyled (DaisyUI base = 16px → override to `text-sm` for supplementary text, as used in `text-base-content/60`).
+Source: Matches existing patterns in `WordsPage.tsx` — `text-sm font-semibold` for labels, `text-2xl font-semibold` for headwords, body text unstyled (DaisyUI base = 16px → override to `text-sm` for supplementary text, as used in `text-base-content/60`). Two weights only: 400 (Body) and 600 (Label + Heading).
 
 ---
 
