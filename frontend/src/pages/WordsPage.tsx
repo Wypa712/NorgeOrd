@@ -431,7 +431,7 @@ export default function WordsPage() {
       {analysis && activeTab === 'analyze' && !chatOpen && (
         <button
           type="button"
-          className="fixed bottom-6 right-6 z-40 btn btn-primary shadow-lg"
+          className="fixed bottom-20 right-6 z-40 btn btn-primary shadow-lg sm:bottom-6"
           onClick={() => setChatOpen(true)}
         >
           {chatMessages.length > 0 && (
@@ -444,7 +444,7 @@ export default function WordsPage() {
       )}
 
       {analysis && activeTab === 'analyze' && chatOpen && (
-        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-40 flex flex-col w-full sm:w-96 h-[480px] bg-base-100 border border-base-300 shadow-2xl rounded-t-2xl sm:rounded-2xl overflow-hidden">
+        <div className="fixed bottom-[3.5rem] right-0 sm:bottom-6 sm:right-6 z-40 flex flex-col w-full sm:w-96 h-[420px] sm:h-[480px] bg-base-100 border border-base-300 shadow-2xl rounded-t-2xl sm:rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between gap-2 px-4 py-3 bg-primary text-primary-content shrink-0">
             <span className="font-semibold truncate">{submittedHeadword}</span>
             <button
