@@ -12,18 +12,20 @@ export default function Toaster() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast toast-top toast-end z-50 gap-2 p-4">
+    <div className="toast toast-top toast-end z-50 w-full max-w-sm gap-2 p-4">
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`alert ${alertClass[t.type]} shadow-lg rounded-xl max-w-xs transition-all duration-500 ${
+          className={`alert ${alertClass[t.type]} w-full items-start gap-3 rounded-xl shadow-lg transition-all duration-500 ${
             t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
           }`}
           role="alert"
         >
-          <span className="text-sm">{t.message}</span>
+          <span className="min-w-0 flex-1 whitespace-normal break-words text-sm leading-5">
+            {t.message}
+          </span>
           <button
-            className="btn btn-ghost btn-xs ml-auto"
+            className="shrink-0 opacity-70 hover:opacity-100 transition-opacity leading-none"
             onClick={() => {
               hideToast(t.id);
               setTimeout(() => removeToast(t.id), 500);

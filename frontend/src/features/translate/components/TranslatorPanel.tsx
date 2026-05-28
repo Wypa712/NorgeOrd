@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Button } from '../../../components/Button';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from '../../../lib/toastStore';
 import { useTranslate } from '../hooks/useTranslate';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 export function TranslatorPanel() {
   const [sourceText, setSourceText] = useState('');
@@ -14,23 +14,39 @@ export function TranslatorPanel() {
   const sourceLabel = direction === 'uk-nn' ? 'Українська' : 'Nynorsk';
   const targetLabel = direction === 'uk-nn' ? 'Nynorsk' : 'Українська';
 
+  const debouncedSource = useDebounce(sourceText, 600);
   const mutation = useTranslate();
   const isTranslating = mutation.isPending;
 
-  const handleTranslate = async () => {
-    const bytes = new TextEncoder().encode(sourceText).length;
+  // Track whether the current result matches the current direction so we don't
+  // re-run on direction swap (swap already clears resultText).
+  const lastTranslatedRef = useRef<{ text: string; dir: string }>({ text: '', dir: '' });
+
+  useEffect(() => {
+    const trimmed = debouncedSource.trim();
+    const key = `${trimmed}|${direction}`;
+    if (!trimmed) {
+      setResultText('');
+      setFallback(false);
+      return;
+    }
+    if (lastTranslatedRef.current.text === key) return;
+
+    const bytes = new TextEncoder().encode(trimmed).length;
     if (bytes > 500) {
       toast.error('Текст занадто довгий (макс. ~160 символів кирилицею)');
       return;
     }
-    try {
-      const result = await mutation.mutateAsync({ text: sourceText, sourceLang, targetLang });
+
+    lastTranslatedRef.current = { text: key, dir: direction };
+    mutation.mutateAsync({ text: trimmed, sourceLang, targetLang }).then(result => {
       setResultText(result.text);
       setFallback(result.fallback);
-    } catch {
+    }).catch(() => {
       toast.error('Помилка перекладу. Спробуй ще раз.');
-    }
-  };
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSource, direction]);
 
   const handleSwap = () => {
     setDirection(prev => (prev === 'uk-nn' ? 'nn-uk' : 'uk-nn'));
@@ -38,6 +54,7 @@ export function TranslatorPanel() {
       setSourceText(resultText);
       setResultText('');
       setFallback(false);
+      lastTranslatedRef.current = { text: '', dir: '' };
     }
   };
 
@@ -61,7 +78,6 @@ export function TranslatorPanel() {
             value={sourceText}
             onChange={e => setSourceText(e.target.value)}
             placeholder="Введи текст для перекладу..."
-            disabled={isTranslating}
           />
         </label>
 
@@ -76,7 +92,12 @@ export function TranslatorPanel() {
         </button>
 
         <label className="form-control w-full flex-1">
-          <span className="label-text font-semibold text-sm mb-1">{targetLabel}</span>
+          <span className="label-text font-semibold text-sm mb-1">
+            {targetLabel}
+            {isTranslating && (
+              <span className="loading loading-dots loading-xs ml-2 opacity-60" />
+            )}
+          </span>
           <div className="relative">
             <textarea
               className="textarea textarea-bordered w-full resize-none bg-base-200"
@@ -99,18 +120,9 @@ export function TranslatorPanel() {
         </label>
       </div>
 
-      <div className="mt-4">
-        {fallback && (
-          <div className="text-xs text-warning mb-2">Результат може містити Bokmål форми</div>
-        )}
-        <Button
-          loading={isTranslating}
-          disabled={isTranslating || !sourceText.trim()}
-          onClick={handleTranslate}
-        >
-          {isTranslating ? 'Перекладаю...' : 'Перекласти'}
-        </Button>
-      </div>
+      {fallback && (
+        <div className="mt-3 text-xs text-warning">Результат може містити Bokmål форми</div>
+      )}
     </div>
   );
 }
