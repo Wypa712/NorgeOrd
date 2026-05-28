@@ -8,6 +8,7 @@ export function TranslatorPanel() {
   const [resultText, setResultText] = useState('');
   const [direction, setDirection] = useState<'uk-nn' | 'nn-uk'>('uk-nn');
   const [fallback, setFallback] = useState(false);
+  const [textToTranslate, setTextToTranslate] = useState('');
 
   const sourceLang = direction === 'uk-nn' ? 'uk' : 'nn';
   const targetLang = direction === 'uk-nn' ? 'nn' : 'uk';
@@ -17,20 +18,23 @@ export function TranslatorPanel() {
   const debouncedSource = useDebounce(sourceText, 600);
   const mutation = useTranslate();
   const isTranslating = mutation.isPending;
+  const lastKeyRef = useRef<{ text: string; dir: string }>({ text: '', dir: '' });
 
-  // Track whether the current result matches the current direction so we don't
-  // re-run on direction swap (swap already clears resultText).
-  const lastTranslatedRef = useRef<{ text: string; dir: string }>({ text: '', dir: '' });
-
+  // Debounce path — update textToTranslate after pause
   useEffect(() => {
-    const trimmed = debouncedSource.trim();
+    setTextToTranslate(debouncedSource);
+  }, [debouncedSource]);
+
+  // Translation effect — runs whenever textToTranslate or direction changes
+  useEffect(() => {
+    const trimmed = textToTranslate.trim();
     const key = `${trimmed}|${direction}`;
     if (!trimmed) {
       setResultText('');
       setFallback(false);
       return;
     }
-    if (lastTranslatedRef.current.text === key) return;
+    if (lastKeyRef.current.text === key) return;
 
     const bytes = new TextEncoder().encode(trimmed).length;
     if (bytes > 500) {
@@ -38,23 +42,35 @@ export function TranslatorPanel() {
       return;
     }
 
-    lastTranslatedRef.current = { text: key, dir: direction };
-    mutation.mutateAsync({ text: trimmed, sourceLang, targetLang }).then(result => {
-      setResultText(result.text);
-      setFallback(result.fallback);
-    }).catch(() => {
-      toast.error('Помилка перекладу. Спробуй ще раз.');
-    });
+    lastKeyRef.current = { text: key, dir: direction };
+    mutation.mutateAsync({ text: trimmed, sourceLang, targetLang })
+      .then(result => {
+        setResultText(result.text);
+        setFallback(result.fallback);
+      })
+      .catch(() => {
+        toast.error('Помилка перекладу. Спробуй ще раз.');
+      });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSource, direction]);
+  }, [textToTranslate, direction]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === ' ' || e.key === 'Tab') {
+      if (e.key === 'Tab') e.preventDefault();
+      // Trigger immediately with current text (before debounce fires)
+      lastKeyRef.current = { text: '', dir: '' };
+      setTextToTranslate(sourceText);
+    }
+  };
 
   const handleSwap = () => {
     setDirection(prev => (prev === 'uk-nn' ? 'nn-uk' : 'uk-nn'));
     if (resultText) {
       setSourceText(resultText);
+      setTextToTranslate(resultText);
       setResultText('');
       setFallback(false);
-      lastTranslatedRef.current = { text: '', dir: '' };
+      lastKeyRef.current = { text: '', dir: '' };
     }
   };
 
@@ -77,6 +93,7 @@ export function TranslatorPanel() {
             rows={5}
             value={sourceText}
             onChange={e => setSourceText(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Введи текст для перекладу..."
           />
         </label>

@@ -12,11 +12,11 @@ export default function Toaster() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast toast-top toast-end z-50 w-full max-w-sm gap-2 p-4">
+    <div className="toast toast-top toast-end z-50 gap-2 p-4">
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`alert ${alertClass[t.type]} w-full items-start gap-3 rounded-xl shadow-lg transition-all duration-500 ${
+          className={`alert ${alertClass[t.type]} w-fit max-w-sm items-start gap-3 rounded-xl shadow-lg transition-all duration-500 ${
             t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
           }`}
           role="alert"
