@@ -12,11 +12,16 @@ router.post('/analyze', async (req, res, next) => {
     return res.status(400).json({ error: 'headword is required' });
   }
 
+  let stage = 'ordbokene';
   try {
     const ordbokene = await fetchOrdbokeneData(headword.trim());
-    const aiResult = await analyzeWord(headword.trim(), ordbokene);
+    console.log(`[analyze] ordbokene ok, meanings=${ordbokene?.meanings?.length ?? 0}`);
 
-    // Flatten nested forms e.g. {nouns: {sing_indef: "eit slag"}} → {sing_indef: "eit slag"}
+    stage = 'ai';
+    const aiResult = await analyzeWord(headword.trim(), ordbokene);
+    console.log(`[analyze] ai ok, translation=${aiResult.translation}, meanings=${aiResult.meanings?.length ?? 0}`);
+
+    stage = 'flatten';
     if (aiResult.forms && typeof aiResult.forms === 'object') {
       const flat: Record<string, string> = {};
       for (const [k, v] of Object.entries(aiResult.forms)) {
@@ -30,12 +35,14 @@ router.post('/analyze', async (req, res, next) => {
       (aiResult as Record<string, unknown>).forms = flat;
     }
 
+    stage = 'response';
     const hasMeanings = Array.isArray(aiResult.meanings) && aiResult.meanings.length > 1;
     const fallbackMeanings = !hasMeanings && ordbokene && ordbokene.meanings.length > 1
       ? ordbokene.meanings.map(m => ({ translation: m.definition }))
       : undefined;
     res.json({ ...aiResult, ...(fallbackMeanings ? { meanings: fallbackMeanings } : {}) });
   } catch (err) {
+    console.error(`[analyze] FAILED at stage=${stage}, word="${headword}":`, err);
     next(err);
   }
 });
