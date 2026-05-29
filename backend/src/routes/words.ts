@@ -15,6 +15,21 @@ router.post('/analyze', async (req, res, next) => {
   try {
     const ordbokene = await fetchOrdbokeneData(headword.trim());
     const aiResult = await analyzeWord(headword.trim(), ordbokene);
+
+    // Flatten nested forms e.g. {nouns: {sing_indef: "eit slag"}} → {sing_indef: "eit slag"}
+    if (aiResult.forms && typeof aiResult.forms === 'object') {
+      const flat: Record<string, string> = {};
+      for (const [k, v] of Object.entries(aiResult.forms)) {
+        if (typeof v === 'string') flat[k] = v;
+        else if (v && typeof v === 'object') {
+          for (const [k2, v2] of Object.entries(v as Record<string, unknown>)) {
+            if (typeof v2 === 'string') flat[k2] = v2;
+          }
+        }
+      }
+      (aiResult as Record<string, unknown>).forms = flat;
+    }
+
     const hasMeanings = Array.isArray(aiResult.meanings) && aiResult.meanings.length > 1;
     const fallbackMeanings = !hasMeanings && ordbokene && ordbokene.meanings.length > 1
       ? ordbokene.meanings.map(m => ({ translation: m.definition }))

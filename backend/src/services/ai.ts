@@ -16,7 +16,7 @@ export const wordAnalysisSchema = z.object({
   gender: z.enum(['masculine', 'feminine', 'neuter']).optional(),
   wordClass: z.enum(['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'sentence', 'other']).optional(),
   difficulty: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']).optional(),
-  forms: z.record(z.string(), z.string()).optional(),
+  forms: z.record(z.string(), z.unknown()).optional(),
   examples: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
 });
@@ -120,7 +120,7 @@ export function chatAboutWord(
   messages: { role: 'user' | 'assistant'; content: string }[],
 ) {
   return streamText({
-    model: groq('llama-3.1-8b-instant'),
+    model: groq('llama-3.3-70b-versatile'),
     system: buildChatSystemPrompt(word),
     messages,
   });
@@ -128,7 +128,7 @@ export function chatAboutWord(
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   const result = await generateObject({
-    model: groq('llama-3.1-8b-instant'),
+    model: groq('llama-3.3-70b-versatile'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
