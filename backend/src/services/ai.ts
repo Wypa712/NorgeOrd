@@ -1,4 +1,4 @@
-import { streamObject, streamText } from 'ai';
+import { generateObject, streamObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import type { OrdbokeneData } from './ordbokene';
@@ -10,7 +10,6 @@ const meaningSchema = z.object({
 
 export const wordAnalysisSchema = z.object({
   translation: z.string().optional(),
-  meanings: z.array(meaningSchema).optional(),
   definition: z.string().optional(),
   synonyms: z.array(z.string()).optional(),
   gender: z.enum(['masculine', 'feminine', 'neuter']).optional(),
@@ -61,7 +60,6 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 
 Return a JSON object with these fields:
 - translation: Ukrainian translation of the primary/most common meaning (short, 1-5 words)
-- meanings: REQUIRED if the AUTHORITATIVE DATA above lists DISTINCT MEANING GROUPS. Translate each group: [{ "translation": "Ukrainian translation", "definition": "the exact Nynorsk definition text from the list" }]. You MUST include one entry per meaning group, preserving exact order. Only omit this field if no meaning groups were listed.
 - definition: two short sentences separated by " — ": first a Nynorsk dictionary-style definition, then its Ukrainian translation. Example: "Eit hus er ein bygning der folk bur. — Будинок — споруда, де живуть люди."
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)
@@ -126,10 +124,11 @@ export function chatAboutWord(
   });
 }
 
-export function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
-  return streamObject({
+export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
+  const result = await generateObject({
     model: groq('llama-3.3-70b-versatile'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
+  return result.object;
 }
