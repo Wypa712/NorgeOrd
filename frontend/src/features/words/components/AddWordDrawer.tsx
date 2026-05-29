@@ -135,25 +135,24 @@ export function AddWordDrawer({ open, onClose }: Props) {
           >
             {analyzeMutation.isPending ? 'AI заповнює...' : 'AI заповнити'}
           </Button>
-          {meanings.length > 1 ? (
+          <Input
+            id="translation"
+            label="Переклад"
+            value={translation}
+            onChange={e => setTranslation(e.target.value)}
+          />
+          {meanings.length > 1 && (
             <div className="form-control w-full">
-              <span className="label-text font-semibold mb-1 block">Переклад (значення)</span>
+              <span className="text-xs text-base-content/50 font-semibold uppercase tracking-wide mb-1 block">Інші значення</span>
               <ol className="list-decimal list-inside space-y-1 bg-base-200 rounded-lg p-3 text-sm">
                 {meanings.map((m, i) => (
-                  <li key={i} className="text-base-content/80">
+                  <li key={i} className="text-base-content/70">
                     <span className="font-medium">{m.translation}</span>
-                    {m.definition && <span className="text-base-content/50 ml-1">— {m.definition}</span>}
+                    {m.definition && <span className="text-base-content/40 ml-1">— {m.definition}</span>}
                   </li>
                 ))}
               </ol>
             </div>
-          ) : (
-            <Input
-              id="translation"
-              label="Переклад"
-              value={translation}
-              onChange={e => setTranslation(e.target.value)}
-            />
           )}
           <SelectField
             id="wordClass"

@@ -115,26 +115,12 @@ function AnalysisReviewCard({
       )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {meanings.length > 1 ? (
-          <div className="form-control w-full sm:col-span-2">
-            <span className="label-text font-semibold mb-1 block">Переклад (значення)</span>
-            <ol className="list-decimal list-inside space-y-1 bg-base-200 rounded-lg p-3 text-sm">
-              {meanings.map((m, i) => (
-                <li key={i} className="text-base-content/80">
-                  <span className="font-medium">{m.translation}</span>
-                  {m.definition && <span className="text-base-content/50 ml-1">— {m.definition}</span>}
-                </li>
-              ))}
-            </ol>
-          </div>
-        ) : (
-          <Input
-            id="analysis-translation"
-            label="Переклад"
-            value={translation}
-            onChange={event => setTranslation(event.target.value)}
-          />
-        )}
+        <Input
+          id="analysis-translation"
+          label="Переклад"
+          value={translation}
+          onChange={event => setTranslation(event.target.value)}
+        />
         <label className="form-control w-full">
           <span className="label">
             <span className="label-text font-semibold">Рівень</span>
@@ -185,6 +171,20 @@ function AnalysisReviewCard({
           </select>
         </label>
       </div>
+
+      {meanings.length > 1 && (
+        <div className="mt-3">
+          <span className="text-xs text-base-content/50 font-semibold uppercase tracking-wide">Інші значення</span>
+          <ol className="list-decimal list-inside space-y-1 mt-1 bg-base-200 rounded-lg p-3 text-sm">
+            {meanings.map((m, i) => (
+              <li key={i} className="text-base-content/70">
+                <span className="font-medium">{m.translation}</span>
+                {m.definition && <span className="text-base-content/40 ml-1">— {m.definition}</span>}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       {showsForms && formEntries.length > 0 && (
         <div className="mt-5">
