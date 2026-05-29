@@ -50,6 +50,7 @@ function buildAnalysisPrompt(headword: string, ordbokene?: OrdbokeneData | null)
   return `
 You are an expert in Nynorsk Norwegian (nynorsk), one of the two written standards of Norwegian.
 Analyze the Nynorsk input "${headword}" and return structured data. The input can be a single word or a full sentence.
+IMPORTANT: All Ukrainian translations MUST use Ukrainian Cyrillic script (not Latin/transliteration). Example: "будинок", not "budynok".
 ${ordbokene ? `\n${buildGroundingSection(ordbokene)}\n` : ''}
 
 CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
@@ -120,7 +121,7 @@ export function chatAboutWord(
   messages: { role: 'user' | 'assistant'; content: string }[],
 ) {
   return streamText({
-    model: groq('llama-3.3-70b-versatile'),
+    model: groq('llama-3.1-8b-instant'),
     system: buildChatSystemPrompt(word),
     messages,
   });
@@ -128,7 +129,7 @@ export function chatAboutWord(
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   const result = await generateObject({
-    model: groq('llama-3.3-70b-versatile'),
+    model: groq('llama-3.1-8b-instant'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
