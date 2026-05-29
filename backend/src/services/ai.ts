@@ -1,4 +1,4 @@
-import { streamObject, streamText } from 'ai';
+import { generateObject, streamObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import type { OrdbokeneData } from './ordbokene';
@@ -126,10 +126,11 @@ export function chatAboutWord(
   });
 }
 
-export function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
-  return streamObject({
+export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
+  const result = await generateObject({
     model: groq('llama-3.3-70b-versatile'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
+  return result.object;
 }
