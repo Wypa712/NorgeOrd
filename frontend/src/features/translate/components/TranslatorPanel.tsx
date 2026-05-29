@@ -7,7 +7,6 @@ export function TranslatorPanel() {
   const [sourceText, setSourceText] = useState('');
   const [resultText, setResultText] = useState('');
   const [direction, setDirection] = useState<'uk-nn' | 'nn-uk'>('uk-nn');
-  const [fallback, setFallback] = useState(false);
   const [textToTranslate, setTextToTranslate] = useState('');
 
   const sourceLang = direction === 'uk-nn' ? 'uk' : 'nn';
@@ -33,7 +32,6 @@ export function TranslatorPanel() {
     if (!trimmed) {
       abortRef.current?.abort();
       setResultText('');
-      setFallback(false);
       return;
     }
     if (lastKeyRef.current === key) return;
@@ -51,7 +49,6 @@ export function TranslatorPanel() {
     mutation.mutateAsync({ text: trimmed, sourceLang, targetLang, signal: controller.signal })
       .then(result => {
         setResultText(result.text);
-        setFallback(result.fallback);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -80,7 +77,6 @@ export function TranslatorPanel() {
       setSourceText(resultText);
       setTextToTranslate(resultText);
       setResultText('');
-      setFallback(false);
       lastKeyRef.current = '';
     }
   };
@@ -116,7 +112,6 @@ export function TranslatorPanel() {
                 onClick={() => {
                   setSourceText('');
                   setResultText('');
-                  setFallback(false);
                   setTextToTranslate('');
                   lastKeyRef.current = '';
                 }}
