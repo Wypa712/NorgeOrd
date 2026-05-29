@@ -44,19 +44,42 @@ function extractDefinitions(body: Record<string, unknown>): string[] {
   return defs.slice(0, 4);
 }
 
+async function resolveToLemma(word: string, signal: AbortSignal): Promise<string> {
+  const res = await fetch(
+    `https://ord.uib.no/api/suggest?q=${encodeURIComponent(word)}&dict=nn&include=i&n=1`,
+    { signal },
+  );
+  if (!res.ok) return word;
+  const data = await res.json() as { a?: { inflect?: [string, string[]][] } };
+  return data?.a?.inflect?.[0]?.[0] ?? word;
+}
+
 export async function fetchOrdbokeneData(word: string): Promise<OrdbokeneData | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3000);
   try {
-    const articlesRes = await fetch(
+    // Try exact lemma match first; if nothing found, resolve inflected form to its base lemma
+    let articlesRes = await fetch(
       `https://ord.uib.no/api/articles?w=${encodeURIComponent(word)}&dict=nn`,
       { signal: controller.signal },
     );
     if (!articlesRes.ok) return null;
 
-    const articlesData = await articlesRes.json() as { articles?: { nn?: number[] } };
-    const ids = articlesData?.articles?.nn ?? [];
-    if (ids.length === 0) return null;
+    let articlesData = await articlesRes.json() as { articles?: { nn?: number[] } };
+    let ids = articlesData?.articles?.nn ?? [];
+
+    if (ids.length === 0) {
+      const lemma = await resolveToLemma(word, controller.signal);
+      if (lemma === word) return null;
+      articlesRes = await fetch(
+        `https://ord.uib.no/api/articles?w=${encodeURIComponent(lemma)}&dict=nn`,
+        { signal: controller.signal },
+      );
+      if (!articlesRes.ok) return null;
+      articlesData = await articlesRes.json() as { articles?: { nn?: number[] } };
+      ids = articlesData?.articles?.nn ?? [];
+      if (ids.length === 0) return null;
+    }
 
     const articleRes = await fetch(
       `https://ord.uib.no/nn/article/${ids[0]}.json`,
