@@ -15,10 +15,11 @@ router.post('/analyze', async (req, res, next) => {
   try {
     const ordbokene = await fetchOrdbokeneData(headword.trim());
     const aiResult = await analyzeWord(headword.trim(), ordbokene);
-    const meanings = ordbokene && ordbokene.meanings.length > 1
+    const hasMeanings = Array.isArray(aiResult.meanings) && aiResult.meanings.length > 1;
+    const fallbackMeanings = !hasMeanings && ordbokene && ordbokene.meanings.length > 1
       ? ordbokene.meanings.map(m => ({ translation: m.definition }))
       : undefined;
-    res.json({ ...aiResult, ...(meanings ? { meanings } : {}) });
+    res.json({ ...aiResult, ...(fallbackMeanings ? { meanings: fallbackMeanings } : {}) });
   } catch (err) {
     next(err);
   }
