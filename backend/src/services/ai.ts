@@ -179,7 +179,7 @@ Rules:
 - Single word input -> single word output.`;
 
   const result = await generateText({
-    model: openrouter('meta-llama/llama-3.3-70b-instruct:free'),
+    model: groq('llama-3.1-8b-instant'),
     system,
     prompt: text,
   });
