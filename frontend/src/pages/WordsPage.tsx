@@ -36,6 +36,7 @@ function AnalysisReviewCard({
 }) {
   const createMutation = useCreateWord();
   const [translation, setTranslation] = useState(analysis.translation ?? '');
+  const [meanings] = useState(analysis.meanings ?? []);
   const [gender, setGender] = useState<Gender | ''>(analysis.gender ?? '');
   const [wordClass, setWordClass] = useState<WordClass | ''>(analysis.wordClass ?? '');
   const [difficulty, setDifficulty] = useState<Difficulty | ''>(analysis.difficulty ?? '');
@@ -68,6 +69,7 @@ function AnalysisReviewCard({
     const payload: CreateWordInput = {
       headword: headword.trim(),
       translation: translation || undefined,
+      meanings: meanings.length > 1 ? meanings : undefined,
       gender: gender || undefined,
       wordClass: wordClass || undefined,
       difficulty: difficulty || undefined,
@@ -113,12 +115,26 @@ function AnalysisReviewCard({
       )}
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Input
-          id="analysis-translation"
-          label="Переклад"
-          value={translation}
-          onChange={event => setTranslation(event.target.value)}
-        />
+        {meanings.length > 1 ? (
+          <div className="form-control w-full sm:col-span-2">
+            <span className="label-text font-semibold mb-1 block">Переклад (значення)</span>
+            <ol className="list-decimal list-inside space-y-1 bg-base-200 rounded-lg p-3 text-sm">
+              {meanings.map((m, i) => (
+                <li key={i} className="text-base-content/80">
+                  <span className="font-medium">{m.translation}</span>
+                  {m.definition && <span className="text-base-content/50 ml-1">— {m.definition}</span>}
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : (
+          <Input
+            id="analysis-translation"
+            label="Переклад"
+            value={translation}
+            onChange={event => setTranslation(event.target.value)}
+          />
+        )}
         <label className="form-control w-full">
           <span className="label">
             <span className="label-text font-semibold">Рівень</span>
