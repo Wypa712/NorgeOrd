@@ -151,9 +151,8 @@ export function AddWordDrawer({ open, onClose }: Props) {
                     <li key={i} className="flex gap-2">
                       <span className="text-base-content/30 shrink-0">{i + 1}.</span>
                       <span className="flex flex-col gap-0.5">
-                        <span className="font-medium text-base-content/80">{m.translation}</span>
-                        {nn && <span className="text-base-content/50 italic text-xs">{nn}</span>}
-                        {uk && uk !== m.translation && <span className="text-base-content/40 text-xs">{uk}</span>}
+                        {nn && <span className="text-base-content/60 italic text-xs">{nn}</span>}
+                        {uk && <span className="text-base-content/40 text-xs">{uk}</span>}
                       </span>
                     </li>
                   );
