@@ -129,7 +129,7 @@ export function chatAboutWord(
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   const result = await generateObject({
-    model: groq('llama-3.1-8b-instant'),
+    model: groq('llama-3.3-70b-versatile'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
