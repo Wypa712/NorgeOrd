@@ -120,7 +120,7 @@ export function chatAboutWord(
   messages: { role: 'user' | 'assistant'; content: string }[],
 ) {
   return streamText({
-    model: groq('gemma2-9b-it'),
+    model: groq('llama-3.1-8b-instant'),
     system: buildChatSystemPrompt(word),
     messages,
   });
@@ -128,7 +128,7 @@ export function chatAboutWord(
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   const result = await generateObject({
-    model: groq('gemma2-9b-it'),
+    model: groq('llama-3.1-8b-instant'),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
