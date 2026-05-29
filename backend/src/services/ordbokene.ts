@@ -34,13 +34,13 @@ function extractForms(inflection: Array<{ tags: string[]; word_form: string }>):
   return forms;
 }
 
-function extractDefinitions(body: Record<string, unknown>): string[] {
+function extractDefinitions(body: Record<string, unknown>, lemma: string): string[] {
   const defs: string[] = [];
   function walk(elements: unknown[]) {
     for (const el of elements ?? []) {
       const node = el as Record<string, unknown>;
       if (node.type_ === 'explanation' && typeof node.content === 'string' && node.content.trim()) {
-        defs.push(node.content);
+        defs.push(node.content.replaceAll('$', lemma));
       }
       if (Array.isArray(node.elements)) walk(node.elements);
     }
@@ -49,12 +49,12 @@ function extractDefinitions(body: Record<string, unknown>): string[] {
   return defs.slice(0, 4);
 }
 
-function extractFirstDefinition(body: Record<string, unknown>): string | null {
+function extractFirstDefinition(body: Record<string, unknown>, lemma: string): string | null {
   function walk(elements: unknown[]): string | null {
     for (const el of elements ?? []) {
       const node = el as Record<string, unknown>;
       if (node.type_ === 'explanation' && typeof node.content === 'string' && node.content.trim()) {
-        return node.content;
+        return node.content.replaceAll('$', lemma);
       }
       if (Array.isArray(node.elements)) {
         const found = walk(node.elements);
@@ -121,21 +121,23 @@ export async function fetchOrdbokeneData(word: string): Promise<OrdbokeneData | 
     const paradigms = lemmaData?.paradigm_info as Array<Record<string, unknown>> | undefined;
     const paradigm = paradigms?.[0];
 
+    const lemma = typeof lemmaData?.lemma === 'string' ? lemmaData.lemma : word;
+
     // One meaning per article (each article = a distinct meaning group)
     const meanings: OrdbokeneMeaning[] = articles
       .filter((a): a is Record<string, unknown> => a !== null)
-      .map(a => extractFirstDefinition(a.body as Record<string, unknown>))
+      .map(a => extractFirstDefinition(a.body as Record<string, unknown>, lemma))
       .filter((d): d is string => d !== null)
       .map(definition => ({ definition }));
 
     return {
-      lemma: typeof lemmaData?.lemma === 'string' ? lemmaData.lemma : word,
+      lemma,
       wordClass: paradigm ? extractWordClass(paradigm.tags as string[]) : undefined,
       gender: paradigm ? extractGender(paradigm.tags as string[]) : undefined,
       forms: paradigm?.inflection
         ? extractForms(paradigm.inflection as Array<{ tags: string[]; word_form: string }>)
         : {},
-      definitions: extractDefinitions(primaryArticle.body as Record<string, unknown>),
+      definitions: extractDefinitions(primaryArticle.body as Record<string, unknown>, lemma),
       meanings,
     };
   } catch {
