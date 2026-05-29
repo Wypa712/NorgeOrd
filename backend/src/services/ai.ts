@@ -20,7 +20,7 @@ export const MODEL_REGISTRY: Record<string, { label: string; limit: string }> = 
   'google/gemini-1.5-flash': { label: 'Gemini 1.5 Flash (Google)', limit: '1500 req/day' },
 };
 
-let activeModelKey: string = process.env.LLM_MODEL ?? 'groq/llama-3.3-70b';
+let activeModelKey: string = process.env.LLM_MODEL ?? 'groq/llama-3.1-8b';
 
 export function getActiveModel(): string { return activeModelKey; }
 export function setActiveModel(key: string): void {
