@@ -15,7 +15,8 @@ router.post('/analyze', async (req, res, next) => {
   try {
     const ordbokene = await fetchOrdbokeneData(headword.trim());
     const result = analyzeWord(headword.trim(), ordbokene);
-    result.pipeTextStreamToResponse(res);
+    const object = await result.object;
+    res.json(object);
   } catch (err) {
     next(err);
   }
