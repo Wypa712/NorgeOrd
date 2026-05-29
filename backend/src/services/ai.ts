@@ -162,19 +162,28 @@ export function chatAboutWord(
 
 export async function translateText(text: string, sourceLang: 'uk' | 'nn', targetLang: 'uk' | 'nn'): Promise<string> {
   const system = targetLang === 'nn'
-    ? `You are a professional translator. Translate the given text from Ukrainian to Nynorsk Norwegian.
-Use ONLY Nynorsk forms, NEVER Bokmål. Key markers: "ikkje" not "ikke", "eg" not "jeg", "husa" not "husene", feminine definite ends in -a.
-Respond with ONLY the translation — no explanations, no quotes, no extra text.`
-    : `You are a professional translator. Translate the given text from Nynorsk Norwegian to Ukrainian.
-Use Ukrainian Cyrillic script only, no Latin transliteration.
-Respond with ONLY the translation — no explanations, no quotes, no extra text.`;
+    ? `You are a professional Nynorsk Norwegian translator.
+Translate the given Ukrainian text to Nynorsk Norwegian.
+
+Rules:
+- Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
+- Use ONLY Nynorsk, NEVER Bokmal: "eg" (not "jeg"), "ikkje" (not "ikke"), "husa" (not "husene"), feminine -a ending in definite.
+- "ya" / Ukrainian first-person singular = "eg" (subject "I", NOT "meg" which means "me").
+- Single word input -> single word output.`
+    : `You are a professional Ukrainian translator.
+Translate the given Nynorsk Norwegian text to Ukrainian.
+
+Rules:
+- Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
+- Use Ukrainian Cyrillic script only, no Latin transliteration.
+- Single word input -> single word output.`;
 
   const result = await generateText({
     model: openrouter('meta-llama/llama-3.3-70b-instruct:free'),
     system,
     prompt: text,
   });
-  return result.text.trim();
+  return result.text.trim().replace(/:\s*$/, '');
 }
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
