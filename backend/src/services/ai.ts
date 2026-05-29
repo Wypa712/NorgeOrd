@@ -1,15 +1,21 @@
 import { generateObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 import { z } from 'zod';
 import type { OrdbokeneData } from './ordbokene';
 
 const groq = createGroq();
 const google = createGoogleGenerativeAI();
+const openrouter = createOpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 export const MODEL_REGISTRY: Record<string, { label: string; limit: string }> = {
   'groq/llama-3.3-70b': { label: 'Llama 3.3 70B (Groq)', limit: '100K tok/day' },
   'groq/llama-3.1-8b': { label: 'Llama 3.1 8B Instant (Groq)', limit: '500K tok/day' },
+  'openrouter/llama-3.3-70b': { label: 'Llama 3.3 70B (OpenRouter free)', limit: 'free tier' },
   'google/gemini-2.0-flash': { label: 'Gemini 2.0 Flash (Google)', limit: '1500 req/day' },
   'google/gemini-1.5-flash': { label: 'Gemini 1.5 Flash (Google)', limit: '1500 req/day' },
 };
@@ -26,6 +32,7 @@ function resolveModel() {
   const key = activeModelKey;
   if (key === 'groq/llama-3.3-70b') return groq('llama-3.3-70b-versatile');
   if (key === 'groq/llama-3.1-8b') return groq('llama-3.1-8b-instant');
+  if (key === 'openrouter/llama-3.3-70b') return openrouter('meta-llama/llama-3.3-70b-instruct:free');
   if (key === 'google/gemini-2.0-flash') return google('gemini-2.0-flash');
   if (key === 'google/gemini-1.5-flash') return google('gemini-1.5-flash');
   return groq('llama-3.3-70b-versatile');
