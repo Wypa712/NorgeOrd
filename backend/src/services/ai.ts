@@ -95,7 +95,7 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 
 Return a JSON object with these fields:
 - translation: Ukrainian translation of the primary/most common meaning (short, 1-5 words)
-- meanings: if DISTINCT MEANING GROUPS are listed in AUTHORITATIVE DATA above, translate each: [{"translation": "Ukrainian", "definition": "exact Nynorsk text from the list"}]. Omit if no groups listed.
+- meanings: if DISTINCT MEANING GROUPS are listed in AUTHORITATIVE DATA above, for each group: {"translation": "distinct Ukrainian translation (1-4 words, must differ from others)", "definition": "Ukrainian translation of the Nynorsk definition text (full sentence)"}. Omit if no groups listed.
 - definition: two short sentences separated by " — ": first a Nynorsk dictionary-style definition, then its Ukrainian translation. Example: "Eit hus er ein bygning der folk bur. — Будинок — споруда, де живуть люди."
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)
