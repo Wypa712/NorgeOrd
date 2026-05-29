@@ -32,6 +32,19 @@ router.post('/', async (req, res, next) => {
   }
   try {
     const { pendingChatMessages, ...wordInput } = req.body;
+
+    // Normalize headword to canonical dictionary form based on wordClass
+    const forms = wordInput.forms as Record<string, string> | undefined;
+    if (forms) {
+      if (wordInput.wordClass === 'noun' && forms.sing_indef) {
+        wordInput.headword = forms.sing_indef;
+      } else if (wordInput.wordClass === 'verb' && forms.inf) {
+        wordInput.headword = forms.inf;
+      } else if (wordInput.wordClass === 'adjective' && forms.positive) {
+        wordInput.headword = forms.positive;
+      }
+    }
+
     const word = await wordsService.createWord(req.user!.userId, wordInput);
     const pending = pendingChatMessages;
     if (Array.isArray(pending) && pending.length > 0) {
