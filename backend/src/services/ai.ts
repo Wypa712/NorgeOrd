@@ -3,8 +3,14 @@ import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
 import type { OrdbokeneData } from './ordbokene';
 
+const meaningSchema = z.object({
+  translation: z.string(),
+  definition: z.string().optional(),
+});
+
 export const wordAnalysisSchema = z.object({
   translation: z.string().optional(),
+  meanings: z.array(meaningSchema).optional(),
   definition: z.string().optional(),
   synonyms: z.array(z.string()).optional(),
   gender: z.enum(['masculine', 'feminine', 'neuter']).optional(),
@@ -50,7 +56,8 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 - Verb infinitives often end in -a in Nynorsk: "skriva", "lesa", "gjera"
 
 Return a JSON object with these fields:
-- translation: Ukrainian translation (short, 1-5 words)
+- translation: Ukrainian translation of the primary/most common meaning (short, 1-5 words)
+- meanings: array of meaning objects when the word has 2 or more distinct meanings. Each object: { "translation": "Ukrainian translation for this meaning", "definition": "corresponding Nynorsk definition" }. If the official definitions above list multiple numbered entries, map each one to a separate meanings entry. Omit this field if the word has only one meaning.
 - definition: two short sentences separated by " — ": first a Nynorsk dictionary-style definition, then its Ukrainian translation. Example: "Eit hus er ein bygning der folk bur. — Будинок — споруда, де живуть люди."
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)

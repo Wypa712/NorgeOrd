@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import type { Difficulty, Gender, Word, WordClass, WordForms } from '../api/wordsApi';
+import type { Difficulty, Gender, Meaning, Word, WordClass, WordForms } from '../api/wordsApi';
 import { useUpdateWord } from '../hooks/useUpdateWord';
 import { useDeleteWord } from '../hooks/useDeleteWord';
 import { useWordChat } from '../hooks/useWordChat';
@@ -140,8 +140,21 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 {word.difficulty && <span className="badge badge-neutral">{word.difficulty}</span>}
               </div>
             </div>
-            {word.translation && (
-              <p className="text-lg text-base-content/70 mb-4">{word.translation}</p>
+            {word.meanings && word.meanings.length > 1 ? (
+              <ol className="list-decimal list-inside space-y-1 mb-4">
+                {word.meanings.map((m: Meaning, i) => (
+                  <li key={i} className="text-base-content/70">
+                    <span className="font-medium">{m.translation}</span>
+                    {m.definition && (
+                      <span className="text-sm text-base-content/50 ml-2">— {m.definition}</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              word.translation && (
+                <p className="text-lg text-base-content/70 mb-4">{word.translation}</p>
+              )
             )}
             {word.examples.length > 0 && (
               <section className="mt-4">

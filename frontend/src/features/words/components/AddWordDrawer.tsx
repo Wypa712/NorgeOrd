@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useCreateWord } from '../hooks/useCreateWord';
 import { useAnalyzeWord } from '../hooks/useAnalyzeWord';
-import type { Difficulty, WordForms } from '../api/wordsApi';
+import type { Difficulty, Meaning, WordForms } from '../api/wordsApi';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
 import { SelectField } from './SelectField';
@@ -24,6 +24,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
   const [forms, setForms] = useState<WordForms>({});
   const [examples, setExamples] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
+  const [meanings, setMeanings] = useState<Meaning[]>([]);
   const [notes, setNotes] = useState('');
   const [headwordError, setHeadwordError] = useState('');
 
@@ -45,6 +46,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
     setForms({});
     setExamples([]);
     setTags([]);
+    setMeanings([]);
     setNotes('');
     setHeadwordError('');
   };
@@ -66,6 +68,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
     mutation.mutate({
       headword: headword.trim(),
       translation: translation || undefined,
+      meanings: meanings.length > 1 ? meanings : undefined,
       gender: gender || undefined,
       wordClass: wordClass || undefined,
       notes: notes || undefined,
@@ -84,6 +87,7 @@ export function AddWordDrawer({ open, onClose }: Props) {
     setHeadwordError('');
     const result = await analyzeMutation.mutateAsync(headword.trim());
     setTranslation(result.translation ?? '');
+    setMeanings(result.meanings ?? []);
     setGender(result.gender ?? '');
     setWordClass(result.wordClass ?? '');
     setDifficulty(result.difficulty ?? '');

@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 interface CreateWordInput {
   headword: string;
   translation?: string;
+  meanings?: { translation: string; definition?: string }[];
   gender?: 'masculine' | 'feminine' | 'neuter';
   wordClass?: 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | 'sentence' | 'other';
   notes?: string;
@@ -112,10 +113,12 @@ export async function updateWord(userId: string, wordId: string, data: UpdateWor
     forms,
     examples,
   } = data;
+  const { meanings } = data;
   const safeData = Object.fromEntries(
     Object.entries({
       headword,
       translation,
+      meanings,
       gender,
       wordClass,
       notes,

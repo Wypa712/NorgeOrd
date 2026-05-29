@@ -5,6 +5,11 @@ export type WordClass = 'noun' | 'verb' | 'adjective' | 'adverb' | 'pronoun' | '
 export type Difficulty = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 export type WordForms = Record<string, string>;
 
+export interface Meaning {
+  translation: string;
+  definition?: string;
+}
+
 export interface WordTag {
   wordId: string;
   tagId: string;
@@ -13,6 +18,7 @@ export interface WordTag {
 
 export interface WordAnalysis {
   translation?: string;
+  meanings?: Meaning[];
   definition?: string;
   synonyms?: string[];
   gender?: Gender;
@@ -28,6 +34,7 @@ export interface Word {
   userId: string;
   headword: string;
   translation: string | null;
+  meanings: Meaning[] | null;
   gender: Gender | null;
   wordClass: WordClass | null;
   difficulty: Difficulty | null;
@@ -44,6 +51,7 @@ export interface Word {
 export interface CreateWordInput {
   headword: string;
   translation?: string;
+  meanings?: Meaning[];
   gender?: Gender;
   wordClass?: WordClass;
   notes?: string;
