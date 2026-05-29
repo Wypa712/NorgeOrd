@@ -1,4 +1,4 @@
-import { generateObject, streamText } from 'ai';
+import { generateObject, generateText, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
@@ -158,6 +158,23 @@ export function chatAboutWord(
     system: buildChatSystemPrompt(word),
     messages,
   });
+}
+
+export async function translateText(text: string, sourceLang: 'uk' | 'nn', targetLang: 'uk' | 'nn'): Promise<string> {
+  const system = targetLang === 'nn'
+    ? `You are a professional translator. Translate the given text from Ukrainian to Nynorsk Norwegian.
+Use ONLY Nynorsk forms, NEVER Bokmål. Key markers: "ikkje" not "ikke", "eg" not "jeg", "husa" not "husene", feminine definite ends in -a.
+Respond with ONLY the translation — no explanations, no quotes, no extra text.`
+    : `You are a professional translator. Translate the given text from Nynorsk Norwegian to Ukrainian.
+Use Ukrainian Cyrillic script only, no Latin transliteration.
+Respond with ONLY the translation — no explanations, no quotes, no extra text.`;
+
+  const result = await generateText({
+    model: openrouter('meta-llama/llama-3.3-70b-instruct:free'),
+    system,
+    prompt: text,
+  });
+  return result.text.trim();
 }
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {

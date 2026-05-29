@@ -5,6 +5,7 @@ import { rateLimit } from 'express-rate-limit';
 import authRouter from './routes/auth';
 import wordsRouter from './routes/words';
 import modelsRouter from './routes/models';
+import translateRouter from './routes/translate';
 import { requireAuth } from './middleware/auth';
 
 const app = express();
@@ -36,6 +37,7 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/words', requireAuth, wordsRouter);
 app.use('/api/models', requireAuth, modelsRouter);
+app.use('/api/translate', requireAuth, translateRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });

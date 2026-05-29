@@ -169,9 +169,6 @@ export function TranslatorPanel() {
         </label>
       </div>
 
-      {fallback && (
-        <div className="mt-3 text-xs text-warning">Apertium недоступний — переклад може бути на Bokmål</div>
-      )}
     </div>
   );
 }
