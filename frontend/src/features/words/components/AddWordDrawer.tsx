@@ -144,19 +144,13 @@ export function AddWordDrawer({ open, onClose }: Props) {
           {meanings.length > 1 && (
             <div className="form-control w-full">
               <span className="text-xs text-base-content/50 font-semibold uppercase tracking-wide mb-1 block">Інші значення</span>
-              <ol className="space-y-2 bg-base-200 rounded-lg p-3 text-sm list-none">
-                {meanings.map((m, i) => {
-                  const [nn, uk] = m.definition ? m.definition.split(' — ') : [];
-                  return (
-                    <li key={i} className="flex gap-2">
-                      <span className="text-base-content/30 shrink-0">{i + 1}.</span>
-                      <span className="flex flex-col gap-0.5">
-                        {nn && <span className="text-base-content/60 italic text-xs">{nn}</span>}
-                        {uk && <span className="text-base-content/40 text-xs">{uk}</span>}
-                      </span>
-                    </li>
-                  );
-                })}
+              <ol className="space-y-1 bg-base-200 rounded-lg p-3 text-sm list-none">
+                {meanings.map((m, i) => (
+                  <li key={i} className="flex gap-2 text-xs text-base-content/60">
+                    <span className="shrink-0">{i + 1}.</span>
+                    <span>{m.definition ?? m.translation}</span>
+                  </li>
+                ))}
               </ol>
             </div>
           )}
