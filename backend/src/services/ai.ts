@@ -30,13 +30,17 @@ function buildGroundingSection(data: OrdbokeneData): string {
     .map(([k, v]) => `  ${k}: ${v}`)
     .join('\n');
   const defsList = data.definitions.map((d, i) => `  ${i + 1}. ${d}`).join('\n');
+  const meaningsList = data.meanings.length > 1
+    ? data.meanings.map((m, i) => `  ${i + 1}. ${m.definition}`).join('\n')
+    : '';
   return `
 AUTHORITATIVE DATA from Nynorskordboka (official dictionary — treat as ground truth):
 - Lemma: ${data.lemma}
 ${data.wordClass ? `- Word class: ${data.wordClass}` : ''}
 ${data.gender ? `- Gender: ${data.gender}` : ''}
 ${formsList ? `- Official inflection forms:\n${formsList}` : ''}
-${defsList ? `- Official Nynorsk definitions:\n${defsList}` : ''}
+${defsList ? `- Official Nynorsk definitions (primary article):\n${defsList}` : ''}
+${meaningsList ? `- DISTINCT MEANING GROUPS (one per dictionary article):\n${meaningsList}\n\nFor the meanings field: translate ONLY these meaning groups to Ukrainian — do not invent additional meanings.` : ''}
 
 Use this data directly for wordClass, gender, and forms. Your main task is to add the Ukrainian translation and format everything as required.
 `.trim();
@@ -57,7 +61,7 @@ CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 
 Return a JSON object with these fields:
 - translation: Ukrainian translation of the primary/most common meaning (short, 1-5 words)
-- meanings: array of meaning objects when the word has 2 or more distinct meanings. Each object: { "translation": "Ukrainian translation for this meaning", "definition": "Nynorsk definition or description for this meaning" }. Use both the official definitions above AND your knowledge of Nynorsk to identify all distinct meanings. Map each distinct meaning to a separate entry. Omit this field only if the word genuinely has a single meaning.
+- meanings: if the AUTHORITATIVE DATA above lists DISTINCT MEANING GROUPS, translate each one: [{ "translation": "Ukrainian translation", "definition": "the Nynorsk definition text from the list" }]. Preserve the exact order and definition text. Omit this field if no meaning groups were listed above.
 - definition: two short sentences separated by " — ": first a Nynorsk dictionary-style definition, then its Ukrainian translation. Example: "Eit hus er ein bygning der folk bur. — Будинок — споруда, де живуть люди."
 - synonyms: array of 2-4 Nynorsk synonyms or closely related words/phrases (omit if none exist)
 - gender: "masculine", "feminine", or "neuter" (for nouns only, omit for other classes)
