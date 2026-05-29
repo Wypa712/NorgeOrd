@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { analyzeWord, chatAboutWord } from '../services/ai';
+import { fetchOrdbokeneData } from '../services/ordbokene';
 import * as wordsService from '../services/words';
 import { prisma } from '../lib/prisma';
 
@@ -12,7 +13,8 @@ router.post('/analyze', async (req, res, next) => {
   }
 
   try {
-    const result = analyzeWord(headword.trim());
+    const ordbokene = await fetchOrdbokeneData(headword.trim());
+    const result = analyzeWord(headword.trim(), ordbokene);
     result.pipeTextStreamToResponse(res);
   } catch (err) {
     next(err);

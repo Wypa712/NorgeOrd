@@ -1,6 +1,7 @@
 import { streamObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
+import type { OrdbokeneData } from './ordbokene';
 
 export const wordAnalysisSchema = z.object({
   translation: z.string().optional(),
@@ -18,10 +19,28 @@ export type WordAnalysis = z.infer<typeof wordAnalysisSchema>;
 
 const groq = createGroq();
 
-function buildAnalysisPrompt(headword: string): string {
+function buildGroundingSection(data: OrdbokeneData): string {
+  const formsList = Object.entries(data.forms)
+    .map(([k, v]) => `  ${k}: ${v}`)
+    .join('\n');
+  const defsList = data.definitions.map((d, i) => `  ${i + 1}. ${d}`).join('\n');
+  return `
+AUTHORITATIVE DATA from Nynorskordboka (official dictionary — treat as ground truth):
+- Lemma: ${data.lemma}
+${data.wordClass ? `- Word class: ${data.wordClass}` : ''}
+${data.gender ? `- Gender: ${data.gender}` : ''}
+${formsList ? `- Official inflection forms:\n${formsList}` : ''}
+${defsList ? `- Official Nynorsk definitions:\n${defsList}` : ''}
+
+Use this data directly for wordClass, gender, and forms. Your main task is to add the Ukrainian translation and format everything as required.
+`.trim();
+}
+
+function buildAnalysisPrompt(headword: string, ordbokene?: OrdbokeneData | null): string {
   return `
 You are an expert in Nynorsk Norwegian (nynorsk), one of the two written standards of Norwegian.
 Analyze the Nynorsk input "${headword}" and return structured data. The input can be a single word or a full sentence.
+${ordbokene ? `\n${buildGroundingSection(ordbokene)}\n` : ''}
 
 CRITICAL - Use ONLY Nynorsk forms, never Bokmal:
 - Plural definite of "hus" -> "husa" (NOT "husene" which is Bokmal)
@@ -96,10 +115,10 @@ export function chatAboutWord(
   });
 }
 
-export function analyzeWord(headword: string) {
+export function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   return streamObject({
     model: groq('llama-3.3-70b-versatile'),
     schema: wordAnalysisSchema,
-    prompt: buildAnalysisPrompt(headword),
+    prompt: buildAnalysisPrompt(headword, ordbokene),
   });
 }
