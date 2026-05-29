@@ -4,6 +4,7 @@ import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 import authRouter from './routes/auth';
 import wordsRouter from './routes/words';
+import modelsRouter from './routes/models';
 import { requireAuth } from './middleware/auth';
 
 const app = express();
@@ -34,6 +35,7 @@ const authLimiter = rateLimit({
 
 app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/words', requireAuth, wordsRouter);
+app.use('/api/models', requireAuth, modelsRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });

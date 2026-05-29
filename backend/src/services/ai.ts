@@ -1,7 +1,35 @@
-import { generateObject, streamObject, streamText } from 'ai';
+import { generateObject, streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { z } from 'zod';
 import type { OrdbokeneData } from './ordbokene';
+
+const groq = createGroq();
+const google = createGoogleGenerativeAI();
+
+export const MODEL_REGISTRY: Record<string, { label: string; limit: string }> = {
+  'groq/llama-3.3-70b': { label: 'Llama 3.3 70B (Groq)', limit: '100K tok/day' },
+  'groq/llama-3.1-8b': { label: 'Llama 3.1 8B Instant (Groq)', limit: '500K tok/day' },
+  'google/gemini-2.0-flash': { label: 'Gemini 2.0 Flash (Google)', limit: '1500 req/day' },
+  'google/gemini-1.5-flash': { label: 'Gemini 1.5 Flash (Google)', limit: '1500 req/day' },
+};
+
+let activeModelKey: string = process.env.LLM_MODEL ?? 'groq/llama-3.3-70b';
+
+export function getActiveModel(): string { return activeModelKey; }
+export function setActiveModel(key: string): void {
+  if (!MODEL_REGISTRY[key]) throw new Error(`Unknown model: ${key}`);
+  activeModelKey = key;
+}
+
+function resolveModel() {
+  const key = activeModelKey;
+  if (key === 'groq/llama-3.3-70b') return groq('llama-3.3-70b-versatile');
+  if (key === 'groq/llama-3.1-8b') return groq('llama-3.1-8b-instant');
+  if (key === 'google/gemini-2.0-flash') return google('gemini-2.0-flash');
+  if (key === 'google/gemini-1.5-flash') return google('gemini-1.5-flash');
+  return groq('llama-3.3-70b-versatile');
+}
 
 const meaningSchema = z.object({
   translation: z.string(),
@@ -22,8 +50,6 @@ export const wordAnalysisSchema = z.object({
 });
 
 export type WordAnalysis = z.infer<typeof wordAnalysisSchema>;
-
-const groq = createGroq();
 
 function buildGroundingSection(data: OrdbokeneData): string {
   const formsList = Object.entries(data.forms)
@@ -129,7 +155,7 @@ export function chatAboutWord(
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
   const result = await generateObject({
-    model: groq('llama-3.3-70b-versatile'),
+    model: resolveModel(),
     schema: wordAnalysisSchema,
     prompt: buildAnalysisPrompt(headword, ordbokene),
   });
