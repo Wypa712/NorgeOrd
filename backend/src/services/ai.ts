@@ -172,17 +172,14 @@ async function apertiumNobToNno(text: string): Promise<string> {
 
 export async function translateText(text: string, sourceLang: 'uk' | 'nn', targetLang: 'uk' | 'nn'): Promise<string> {
   const system = targetLang === 'nn'
-    ? `You are a professional Nynorsk Norwegian translator.
-Translate the given Ukrainian text to Nynorsk Norwegian.
+    ? `You are a professional Norwegian translator.
+Translate the given Ukrainian text to Norwegian Bokmål.
 
 Rules:
 - Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
-- Use ONLY Nynorsk, NEVER Bokmal: "eg" (not "jeg"), "ikkje" (not "ikke"), "husa" (not "husene"), feminine -a ending in definite.
-- "ya" / Ukrainian first-person singular = "eg" (subject "I", NOT "meg").
-- Vocabulary: "svolten" (not "sulten"), "vakker" (not "pen"), "gjere" (not "gjøre"), "kome" (not "komme"), "kva" (not "hva"), "kvar" (not "hvor"), "kven" (not "hvem"), "heim" (not "hjem"), "noko" (not "noe"), "nokon" (not "noen"), "mykje" (not "mye"), "sjå" (not "se").
 - Single word input -> single word output.`
     : `You are a professional Ukrainian translator.
-Translate the given Nynorsk Norwegian text to Ukrainian.
+Translate the given Norwegian text to Ukrainian.
 
 Rules:
 - Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
@@ -196,6 +193,7 @@ Rules:
   });
   const llmOutput = result.text.trim().replace(/:\s*$/, '');
 
+  // uk→nn: LLM produces Bokmål, Apertium converts to Nynorsk
   if (targetLang === 'nn') {
     try {
       return await apertiumNobToNno(llmOutput);
