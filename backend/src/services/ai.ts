@@ -20,7 +20,7 @@ export const MODEL_REGISTRY: Record<string, { label: string; limit: string }> = 
   'google/gemini-1.5-flash': { label: 'Gemini 1.5 Flash (Google)', limit: '1500 req/day' },
 };
 
-let activeModelKey: string = process.env.LLM_MODEL ?? 'groq/llama-3.1-8b';
+let activeModelKey: string = process.env.LLM_MODEL ?? 'groq/llama-3.3-70b';
 
 export function getActiveModel(): string { return activeModelKey; }
 export function setActiveModel(key: string): void {
@@ -169,6 +169,7 @@ Rules:
 - Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
 - Use ONLY Nynorsk, NEVER Bokmal: "eg" (not "jeg"), "ikkje" (not "ikke"), "husa" (not "husene"), feminine -a ending in definite.
 - "ya" / Ukrainian first-person singular = "eg" (subject "I", NOT "meg" which means "me").
+- Nynorsk-specific vocabulary: "svolten" (not "sulten"), "vakker/fager" (not "pen"), "gjere" (not "gjøre"), "kome" (not "komme").
 - Single word input -> single word output.`
     : `You are a professional Ukrainian translator.
 Translate the given Nynorsk Norwegian text to Ukrainian.
