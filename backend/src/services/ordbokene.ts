@@ -127,7 +127,7 @@ export async function fetchOrdbokeneData(word: string): Promise<OrdbokeneData | 
     const meanings: OrdbokeneMeaning[] = articles
       .filter((a): a is Record<string, unknown> => a !== null)
       .map(a => extractFirstDefinition(a.body as Record<string, unknown>, lemma))
-      .filter((d): d is string => d !== null)
+      .filter((d): d is string => d !== null && d.trim().toLowerCase() !== lemma.toLowerCase() && d.trim().length > lemma.length + 2)
       .map(definition => ({ definition }));
 
     return {
