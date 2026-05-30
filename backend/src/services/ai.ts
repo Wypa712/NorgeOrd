@@ -160,6 +160,16 @@ export function chatAboutWord(
   });
 }
 
+async function apertiumNobToNno(text: string): Promise<string> {
+  const url = `https://www.apertium.org/apy/translate?q=${encodeURIComponent(text)}&langpair=nob|nno`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+  if (!res.ok) throw new Error(`Apertium ${res.status}`);
+  const data = await res.json() as { responseData?: { translatedText?: string } };
+  const out = data?.responseData?.translatedText?.trim();
+  if (!out) throw new Error('Apertium empty response');
+  return out;
+}
+
 export async function translateText(text: string, sourceLang: 'uk' | 'nn', targetLang: 'uk' | 'nn'): Promise<string> {
   const system = targetLang === 'nn'
     ? `You are a professional Nynorsk Norwegian translator.
@@ -168,8 +178,8 @@ Translate the given Ukrainian text to Nynorsk Norwegian.
 Rules:
 - Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
 - Use ONLY Nynorsk, NEVER Bokmal: "eg" (not "jeg"), "ikkje" (not "ikke"), "husa" (not "husene"), feminine -a ending in definite.
-- "ya" / Ukrainian first-person singular = "eg" (subject "I", NOT "meg" which means "me").
-- Nynorsk-specific vocabulary: "svolten" (not "sulten"), "vakker/fager" (not "pen"), "gjere" (not "gjøre"), "kome" (not "komme").
+- "ya" / Ukrainian first-person singular = "eg" (subject "I", NOT "meg").
+- Vocabulary: "svolten" (not "sulten"), "vakker" (not "pen"), "gjere" (not "gjøre"), "kome" (not "komme"), "kva" (not "hva"), "kvar" (not "hvor"), "kven" (not "hvem"), "heim" (not "hjem"), "noko" (not "noe"), "nokon" (not "noen"), "mykje" (not "mye"), "sjå" (not "se").
 - Single word input -> single word output.`
     : `You are a professional Ukrainian translator.
 Translate the given Nynorsk Norwegian text to Ukrainian.
@@ -184,7 +194,16 @@ Rules:
     system,
     prompt: text,
   });
-  return result.text.trim().replace(/:\s*$/, '');
+  const llmOutput = result.text.trim().replace(/:\s*$/, '');
+
+  if (targetLang === 'nn') {
+    try {
+      return await apertiumNobToNno(llmOutput);
+    } catch {
+      return llmOutput;
+    }
+  }
+  return llmOutput;
 }
 
 export async function analyzeWord(headword: string, ordbokene?: OrdbokeneData | null) {
