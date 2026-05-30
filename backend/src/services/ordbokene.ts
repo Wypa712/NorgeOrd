@@ -138,7 +138,17 @@ export async function fetchOrdbokeneData(word: string): Promise<OrdbokeneData | 
           gender: aParadigm ? extractGender(aParadigm.tags as string[]) : undefined,
         };
       })
-      .filter(m => m.definition !== null && m.definition.trim().toLowerCase() !== lemma.toLowerCase() && m.definition.trim().length > lemma.length + 2)
+      .filter(m => {
+        if (m.definition === null) return false;
+        const def = m.definition.trim().toLowerCase();
+        const lem = lemma.toLowerCase();
+        if (def === lem) return false;
+        if (def.length <= lem.length + 2) return false;
+        // filter "band, band, band" — definition is just repetitions of the lemma
+        const parts = def.split(/[,;\s]+/).filter(Boolean);
+        if (parts.length > 0 && parts.every(p => p === lem)) return false;
+        return true;
+      })
       .map(m => ({ ...m, definition: m.definition! }));
 
     return {

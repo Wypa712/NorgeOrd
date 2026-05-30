@@ -192,10 +192,14 @@ Rules:
     system,
     prompt: text,
   });
-  const llmOutput = result.text.trim().replace(/:\s*$/, '');
+  let llmOutput = result.text.trim().replace(/:\s*$/, '');
 
-  // uk→nn: LLM produces Bokmål, Apertium converts to Nynorsk
+  // uk→nn: normalize common Danish/archaic forms before Apertium
   if (targetLang === 'nn') {
+    llmOutput = llmOutput
+      .replace(/\bhvad\b/gi, 'hva')
+      .replace(/\bhvorde\b/gi, 'hvordan')
+      .replace(/\bDet\b/g, 'det');
     try {
       return await apertiumNobToNno(llmOutput);
     } catch {
