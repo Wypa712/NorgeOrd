@@ -145,6 +145,12 @@ export function WordDetailDrawer({ wordId, words, open, onClose }: Props) {
                 {word.meanings.map((m: Meaning, i) => (
                   <li key={i} className="text-base-content/70">
                     <span className="font-medium">{m.translation}</span>
+                    {(m.wordClass || m.gender) && (
+                      <span className="inline-flex gap-1 ml-1 align-middle">
+                        {m.wordClass && m.wordClass !== word.wordClass && <WordClassBadge wordClass={m.wordClass} />}
+                        {m.gender && m.gender !== word.gender && <GenderBadge gender={m.gender} />}
+                      </span>
+                    )}
                     {m.definition && (
                       <span className="text-sm text-base-content/50 ml-2">— {m.definition}</span>
                     )}

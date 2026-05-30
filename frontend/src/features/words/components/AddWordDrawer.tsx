@@ -5,6 +5,8 @@ import type { Difficulty, Meaning, WordForms } from '../api/wordsApi';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
 import { SelectField } from './SelectField';
+import { WordClassBadge } from './WordClassBadge';
+import { GenderBadge } from './GenderBadge';
 
 interface Props {
   open: boolean;
@@ -149,6 +151,12 @@ export function AddWordDrawer({ open, onClose }: Props) {
                   <li key={i} className="flex gap-2 text-xs text-base-content/60">
                     <span className="shrink-0">{i + 1}.</span>
                     <span>{m.definition ?? m.translation}</span>
+                    {(m.wordClass || m.gender) && (
+                      <span className="inline-flex gap-1 shrink-0">
+                        {m.wordClass && <WordClassBadge wordClass={m.wordClass} />}
+                        {m.gender && <GenderBadge gender={m.gender} />}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ol>

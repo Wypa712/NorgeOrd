@@ -1,5 +1,7 @@
 export interface OrdbokeneMeaning {
   definition: string;
+  wordClass?: string;
+  gender?: string;
 }
 
 export interface OrdbokeneData {
@@ -126,9 +128,18 @@ export async function fetchOrdbokeneData(word: string): Promise<OrdbokeneData | 
     // One meaning per article (each article = a distinct meaning group)
     const meanings: OrdbokeneMeaning[] = articles
       .filter((a): a is Record<string, unknown> => a !== null)
-      .map(a => extractFirstDefinition(a.body as Record<string, unknown>, lemma))
-      .filter((d): d is string => d !== null && d.trim().toLowerCase() !== lemma.toLowerCase() && d.trim().length > lemma.length + 2)
-      .map(definition => ({ definition }));
+      .map(a => {
+        const aLemmas = a.lemmas as Array<Record<string, unknown>> | undefined;
+        const aParadigms = aLemmas?.[0]?.paradigm_info as Array<Record<string, unknown>> | undefined;
+        const aParadigm = aParadigms?.[0];
+        return {
+          definition: extractFirstDefinition(a.body as Record<string, unknown>, lemma),
+          wordClass: aParadigm ? extractWordClass(aParadigm.tags as string[]) : undefined,
+          gender: aParadigm ? extractGender(aParadigm.tags as string[]) : undefined,
+        };
+      })
+      .filter(m => m.definition !== null && m.definition.trim().toLowerCase() !== lemma.toLowerCase() && m.definition.trim().length > lemma.length + 2)
+      .map(m => ({ ...m, definition: m.definition! }));
 
     return {
       lemma,

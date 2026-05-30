@@ -40,6 +40,15 @@ router.post('/analyze', async (req, res, next) => {
     const fallbackMeanings = !hasMeanings && ordbokene && ordbokene.meanings.length > 1
       ? ordbokene.meanings.map(m => ({ translation: m.definition }))
       : undefined;
+
+    if (hasMeanings && ordbokene && ordbokene.meanings.length > 0) {
+      aiResult.meanings = aiResult.meanings!.map((m, i) => ({
+        ...m,
+        ...(ordbokene.meanings[i]?.wordClass && { wordClass: ordbokene.meanings[i].wordClass }),
+        ...(ordbokene.meanings[i]?.gender && { gender: ordbokene.meanings[i].gender }),
+      }));
+    }
+
     res.json({ ...aiResult, ...(fallbackMeanings ? { meanings: fallbackMeanings } : {}) });
   } catch (err) {
     console.error(`[analyze] FAILED at stage=${stage}, word="${headword}":`, err);

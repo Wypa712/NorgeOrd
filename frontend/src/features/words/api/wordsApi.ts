@@ -8,6 +8,8 @@ export type WordForms = Record<string, string>;
 export interface Meaning {
   translation: string;
   definition?: string;
+  wordClass?: WordClass;
+  gender?: Gender;
 }
 
 export interface WordTag {
