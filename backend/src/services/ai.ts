@@ -167,16 +167,17 @@ async function apertiumNobToNno(text: string): Promise<string> {
   const data = await res.json() as { responseData?: { translatedText?: string } };
   const out = data?.responseData?.translatedText?.trim();
   if (!out) throw new Error('Apertium empty response');
-  return out;
+  return out.replace(/\*(\S+)/g, '$1');
 }
 
 export async function translateText(text: string, sourceLang: 'uk' | 'nn', targetLang: 'uk' | 'nn'): Promise<string> {
   const system = targetLang === 'nn'
     ? `You are a professional Norwegian translator.
-Translate the given Ukrainian text to Norwegian Bokmål.
+Translate the given Ukrainian text to Norwegian Bokmål (standard modern Norwegian, not Danish).
 
 Rules:
 - Output ONLY the translated text. No labels, no colons, no explanations, no quotes.
+- Use standard Bokmål: "hva" (not "hvad"), "hvor" (not "hvore"), "jeg" (not "jeg" alternatives).
 - Single word input -> single word output.`
     : `You are a professional Ukrainian translator.
 Translate the given Norwegian text to Ukrainian.
